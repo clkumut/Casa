@@ -1,0 +1,22 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "type": "command",
+        "windows": "powershell -NoProfile -ExecutionPolicy Bypass -File .github\\hooks\\Invoke-CasaPolicyHook.ps1",
+        "command": "pwsh -NoProfile -File .github/hooks/Invoke-CasaPolicyHook.ps1",
+        "cwd": ".",
+        "timeout": 20
+      }
+    ],
+    "PostToolUse": [
+      {
+        "type": "command",
+        "windows": "powershell -NoProfile -ExecutionPolicy Bypass -File .github\\hooks\\Invoke-CasaPolicyHook.ps1",
+        "command": "pwsh -NoProfile -File .github/hooks/Invoke-CasaPolicyHook.ps1",
+        "cwd": ".",
+        "timeout": 20
+      }
+    ]
+  }
+}

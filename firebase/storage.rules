@@ -1,0 +1,11 @@
+rules_version = '2';
+
+service firebase.storage {
+  match /b/{bucket}/o {
+    // Secure baseline: deny all access until public and authenticated
+    // asset boundaries are explicitly approved and implemented.
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}

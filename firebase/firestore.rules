@@ -1,0 +1,11 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Secure baseline: deny all reads and writes until claims, ownership,
+    // and document boundaries are implemented from approved architecture.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
