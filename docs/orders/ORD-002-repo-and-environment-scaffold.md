@@ -6,7 +6,7 @@
 | --- | --- |
 | Emir ID | ORD-002 |
 | Tarih | 2026-04-21 |
-| Durum | Open |
+| Durum | Closed |
 | Emir Sahibi | Project Manager |
 | Teknik Sahip | Tech Lead |
 | Bagli Work Package | [../delivery/work-packages/WP-002-repo-and-environment-scaffold.md](../delivery/work-packages/WP-002-repo-and-environment-scaffold.md) |
@@ -31,7 +31,9 @@ Casa V1 icin fiziksel repo scaffold'ini, Firebase baseline dosyalarini ve operas
 
 - Fiziksel scaffold repo icinde mevcut.
 - `firebase` baseline dosyalari ve `operations` alt klasorleri acilmis durumda.
-- Gercek environment binding, build toolchain ve emulator calistirma kaniti henuz yok.
+- Build toolchain, local environment check, build-ready verify, typecheck ve build kaniti toplandi.
+- Local Firebase Emulator Suite startup sonucu ve `buildReady` smoke kaniti toplandi.
+- G3 approval zinciri tamamlandi ve emir kapanis esigine ulasti.
 
 ## Beklenen Ciktilar
 

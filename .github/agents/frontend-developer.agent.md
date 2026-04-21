@@ -5,7 +5,7 @@ description: >
   TanStack Query, Zustand, shadcn/ui, NextAuth.js v5 ve Zod ile kurumsal
   web arayüzü geliştirme. (L4)
 target: vscode
-tools: ['search', 'edit', 'web', 'agent']
+tools: [vscode, execute, read, agent, edit, search, web, browser, 'pylance-mcp-server/*', 'github/*', vscode.mermaid-chat-features/renderMermaidDiagram, ms-azuretools.vscode-containers/containerToolsConfig, ms-python.python/getPythonEnvironmentInfo, ms-python.python/getPythonExecutableCommand, ms-python.python/installPythonPackage, ms-python.python/configurePythonEnvironment, vscjava.vscode-java-debug/debugJavaApplication, vscjava.vscode-java-debug/setJavaBreakpoint, vscjava.vscode-java-debug/debugStepOperation, vscjava.vscode-java-debug/getDebugVariables, vscjava.vscode-java-debug/getDebugStackTrace, vscjava.vscode-java-debug/evaluateDebugExpression, vscjava.vscode-java-debug/getDebugThreads, vscjava.vscode-java-debug/removeJavaBreakpoints, vscjava.vscode-java-debug/stopDebugSession, vscjava.vscode-java-debug/getDebugSessionInfo, todo]
 agents: ['UI UX Lead', 'QA Engineer', 'Security Engineer']
 argument-hint: Sayfa, component, form, veri cekme veya Next.js implementasyon ihtiyacini yazin.
 handoffs:

@@ -6,7 +6,7 @@ Casa V1 icin repo calisma yuzeylerini, Firebase baseline artefact'larini ve oper
 
 ## Durum
 
-`In Progress`
+`Completed`
 
 ## Bagli Emir
 
@@ -64,6 +64,12 @@ Casa V1 icin repo calisma yuzeylerini, Firebase baseline artefact'larini ve oper
 ## Notlar
 
 - `apps`, `firebase` ve `operations` scaffold'i repo icinde mevcut.
-- Gercek environment binding dosyalari henuz baglanmadi.
-- Workspace ya da build toolchain giris dosyalari henuz gozlenmiyor.
-- Emulator calistirma sonucu, smoke ciktilari ve build-ready kaniti henuz toplanmadi.
+- Root workspace manifesti, `tsconfig.base.json`, `.gitignore` ve repo script girisleri eklendi.
+- `operations/tooling` altinda environment binding ve build-ready dogrulama scriptleri eklendi.
+- `verify-build-ready` statik olarak Firebase config semantigini, Functions bagimlilik hizasini (`firebase-functions`, `firebase-admin`, `engines.node`) ve varsayilan route redirect guard'larini (`auth/login`, `auth/onboarding/welcome`, `app/learn`, `ops/content`) kontrol ediyor.
+- `apps/web` icin Angular build, serve ve typecheck girisleri ile shell tabanli placeholder route scaffold'i gozleniyor; varsayilan redirectler artik `auth/login`, `auth/onboarding/welcome`, `app/learn` ve `ops/content` yuzeylerine yonleniyor.
+- `apps/functions` icin TypeScript build/typecheck girisleri ve `buildReady` ops handler scaffold'i gozleniyor.
+- Dev, staging ve prod icin environment example dosyalari eklendi; gercek proje kimlikleri hardcoded tutulmadi.
+- `npm install`, `npm run env:check:local`, `npm run verify:build-ready`, `npm run typecheck` ve `npm run build` komut ciktilari toplandi.
+- Local Firebase Emulator Suite auth/functions/firestore/storage servisleriyle basariyla kalkti; `buildReady` smoke sonucu [../../../operations/smoke-tests/dev/SMK-G3-001-build-ready-emulator.md](../../../operations/smoke-tests/dev/SMK-G3-001-build-ready-emulator.md) kaydina baglandi.
+- G3 formal sign-off zinciri tamamlandi; WP-003 execution girisi acildi.

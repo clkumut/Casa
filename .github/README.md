@@ -84,7 +84,7 @@ Bu sayede agent değişimi manuel kopyala-yapıştır yerine agent akışı olar
 
 | Agent              | Tool Yetkisi                 | Alt-Agent Yetkisi                                           | Çalışma Biçimi |
 |--------------------|------------------------------|-------------------------------------------------------------|----------------|
-| CTO                | `search`, `web`, `agent`     | SA, PM, Tech Lead, Security, DevOps                        | Stratejik, read-only, nihai onay |
+| CTO                | `search`, `web`, `terminal`, `agent` | SA, PM, Tech Lead, Security, DevOps                  | Stratejik, terminal dogrulamasi, nihai onay |
 | Solution Architect | `search`, `web`, `agent`     | Tech Lead, Backend, Frontend, Mobile, DBA                  | Mimari, read-only, delegasyon odaklı |
 | Project Manager    | `search`, `web`, `agent`     | Tech Lead, QA, DevOps                                      | Planlama, teslim ve eskalasyon |
 | Tech Lead          | `search`, `edit`, `web`, `agent` | SA, Backend, Frontend, Mobile, DBA, QA, Security       | Teknik orkestrasyon ve uygulama gözetimi |
@@ -97,7 +97,7 @@ Bu sayede agent değişimi manuel kopyala-yapıştır yerine agent akışı olar
 | DevOps Engineer    | `search`, `edit`, `web`, `agent` | QA, Security, DBA, CTO                                  | Dağıtım ve operasyon |
 | Security Engineer  | `search`, `web`, `agent`     | Tech Lead, Backend, Frontend, Mobile, DevOps, CTO         | Güvenlik yönetişimi ve eskalasyon |
 
-Not: `edit` yetkisi yalnızca doğrudan implementasyon veya test/altyapı değişikliği yapması beklenen rollerde açıktır. CTO, SA, PM ve Security rolleri ağırlıklı olarak yönlendirme, inceleme ve delegasyon için tanımlanmıştır.
+Not: `edit` yetkisi yalnızca doğrudan implementasyon veya test/altyapı değişikliği yapması beklenen rollerde açıktır. CTO rolunde `terminal` erisimi ortam, komut ciktilari ve operasyonel dogrulama incelemesi icin aciktir; varsayilan implementasyon akisi halen delegasyon odaklidir.
 
 ---
 

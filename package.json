@@ -1,0 +1,28 @@
+{
+  "name": "casa-workspace",
+  "version": "0.1.0",
+  "private": true,
+  "packageManager": "npm@10.8.2",
+  "workspaces": [
+    "apps/web",
+    "apps/functions"
+  ],
+  "scripts": {
+    "build": "npm run build:web && npm run build:functions",
+    "build:web": "npm run build --workspace apps/web",
+    "build:functions": "npm run build --workspace apps/functions",
+    "serve:web": "npm run serve --workspace apps/web",
+    "typecheck:web": "npm run typecheck --workspace apps/web",
+    "typecheck:functions": "npm run typecheck --workspace apps/functions",
+    "typecheck": "npm run typecheck:web && npm run typecheck:functions",
+    "env:check:local": "node ./operations/tooling/validate-environment-binding.mjs local",
+    "env:check:dev": "node ./operations/tooling/validate-environment-binding.mjs dev",
+    "env:check:staging": "node ./operations/tooling/validate-environment-binding.mjs staging",
+    "env:check:prod": "node ./operations/tooling/validate-environment-binding.mjs prod",
+    "verify:build-ready": "node ./operations/tooling/verify-build-ready.mjs",
+    "emulators:start": "firebase emulators:start --config ./firebase/firebase.json --project demo-casa-local"
+  },
+  "devDependencies": {
+    "firebase-tools": "^14.4.0"
+  }
+}

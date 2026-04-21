@@ -95,7 +95,7 @@
 
 | Agent                | Tool Yetkisi                 | Delegasyon Yetkisi                                      | Yönetim Seviyesi |
 |---------------------|------------------------------|---------------------------------------------------------|------------------|
-| CTO                 | `search`, `web`, `agent`     | SA, PM, Tech Lead, Security, DevOps                    | L1               |
+| CTO                 | `search`, `web`, `terminal`, `agent` | SA, PM, Tech Lead, Security, DevOps              | L1               |
 | Solution Architect  | `search`, `web`, `agent`     | Tech Lead, Backend, Frontend, Mobile, DBA              | L2A              |
 | Project Manager     | `search`, `web`, `agent`     | Tech Lead, QA, DevOps                                  | L2B              |
 | Tech Lead           | `search`, `edit`, `web`, `agent` | SA, Backend, Frontend, Mobile, DBA, QA, Security   | L3               |

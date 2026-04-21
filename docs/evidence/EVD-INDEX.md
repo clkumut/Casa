@@ -24,14 +24,15 @@ Bu indeks, gate ve release kanitlarinin hangi kimlikle tutulacagini ve hangi ala
 | EVD-G0-001 | Brief Acceptance Evidence | Draft - Evidence Collected | WP-001 / ORD-001 | [EVD-G0-001](./gates/EVD-G0-001-brief-acceptance.md) |
 | EVD-G1-001 | Scope Freeze Evidence | Draft - Evidence Collected | WP-001 / ORD-001 | [EVD-G1-001](./gates/EVD-G1-001-scope-freeze.md) |
 | EVD-G2-001 | Architecture Freeze Evidence | Draft - Evidence Collected | WP-001, WP-002 / ORD-001, ORD-002 | [EVD-G2-001](./gates/EVD-G2-001-architecture-freeze.md) |
-| EVD-G3-001 | Build Ready Evidence | Draft - Planned Evidence | WP-002 / ORD-002 | [EVD-G3-001](./gates/EVD-G3-001-build-ready.md) |
+| EVD-G3-001 | Build Ready Evidence | Pass | WP-002 / ORD-002 | [EVD-G3-001](./gates/EVD-G3-001-build-ready.md) |
 | EVD-G5-001 | Release Ready Evidence | Not Started - Planned Evidence | WP-011 / ORD TBD | [EVD-G5-001](./gates/EVD-G5-001-release-ready.md) |
 
 ## Gate Kayit Dizini
 
 - Kullanim standardi: [./gates/README.md](./gates/README.md)
 - G0, G1 ve G2 kayitlari kanit toplandigini, resmi approval'in ise bekledigini belirtir.
-- G3 ve G5 kayitlari yalniz planlanan kanit listesini tutar; gate sonucu ilan etmez.
+- G3 kaydi kanit ve approval zinciri tamamlanmis gate sonucunu tutar.
+- G5 kaydi yalniz planlanan kanit listesini tutar; gate sonucu ilan etmez.
 
 ## Isletim Kurali
 

@@ -1,0 +1,117 @@
+:root {
+  color-scheme: light;
+  --casa-bg: #f2f5f9;
+  --casa-surface: #ffffff;
+  --casa-surface-muted: #eef3f8;
+  --casa-border: #d4deea;
+  --casa-ink: #1f3650;
+  --casa-ink-soft: #58708a;
+  --casa-accent: #0f6b81;
+  --casa-shadow: 0 20px 45px rgba(19, 45, 75, 0.08);
+  font-family: 'IBM Plex Sans', 'Segoe UI', sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  background:
+    radial-gradient(circle at top left, rgba(15, 107, 129, 0.12), transparent 28%),
+    linear-gradient(180deg, #f6f9fc 0%, #eef3f8 100%);
+  color: var(--casa-ink);
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+.page-panel {
+  background: var(--casa-surface);
+  border: 1px solid var(--casa-border);
+  border-radius: 24px;
+  box-shadow: var(--casa-shadow);
+  padding: 2rem;
+}
+
+.page-eyebrow {
+  color: var(--casa-accent);
+  display: inline-block;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  margin-bottom: 0.75rem;
+  text-transform: uppercase;
+}
+
+.page-title {
+  font-size: clamp(1.8rem, 3vw, 2.7rem);
+  line-height: 1.1;
+  margin: 0 0 1rem;
+}
+
+.page-description {
+  color: var(--casa-ink-soft);
+  font-size: 1rem;
+  line-height: 1.7;
+  margin: 0;
+  max-width: 56ch;
+}
+
+.shell-link {
+  border: 1px solid transparent;
+  border-radius: 16px;
+  display: block;
+  font-weight: 600;
+  padding: 0.85rem 1rem;
+  transition: background-color 120ms ease, border-color 120ms ease, color 120ms ease;
+}
+
+.shell-link:hover {
+  background: rgba(15, 107, 129, 0.08);
+  border-color: rgba(15, 107, 129, 0.12);
+}
+
+.shell-link.is-active {
+  background: var(--casa-ink);
+  border-color: var(--casa-ink);
+  color: #ffffff;
+}
+
+.metric-card {
+  background: var(--casa-surface-muted);
+  border: 1px solid var(--casa-border);
+  border-radius: 18px;
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem 1.1rem;
+}
+
+.metric-card strong {
+  font-size: 1.15rem;
+}
+
+.muted-text {
+  color: var(--casa-ink-soft);
+}
+
+@media (max-width: 960px) {
+  .page-panel {
+    padding: 1.5rem;
+  }
+}

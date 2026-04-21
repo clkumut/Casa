@@ -89,3 +89,21 @@ Bu repository, once dokumantasyonun netlestirildigi ve fiziksel klasor iskeletin
 - Ortam kimligi, proje id veya gizli bilgi gerektiren dosyalar bilincli olarak bu asamada olusturulmaz.
 
 Detay klasor ve mimari standartlari icin `docs/architecture/repo-and-folder-standards.md`, `docs/architecture/angular-application-architecture.md` ve `docs/architecture/firebase-platform-architecture.md` belgelerine bakilir.
+
+---
+
+## Workspace Toolchain
+
+WP-002 kapsaminda root workspace manifesti ve uygulama toolchain girisleri repo icinde tanimlanmistir.
+
+- `npm install`
+- `npm run env:check:local`
+- `npm run verify:build-ready`
+- `npm run serve:web`
+- `npm run build`
+- `npm run typecheck`
+- `npm run emulators:start`
+
+Environment binding ornekleri `operations/environments/*/firebase.env.example` altinda tutulur. Gercek ortam degerleri `operations/environments/<env>/.env` icinde veya CI secret olarak saglanir. Local emulator calismasi icin `demo-casa-local` sentinel project kullanilir; dev, staging ve prod icin mevcut `process.env` degerleri varsa `.env` bunlari ezmez.
+
+Analytics entegrasyonu gereken ortamlarda `CASA_FIREBASE_MEASUREMENT_ID_<ENV>` opsiyonel olarak korunabilir; build binding icin zorunlu degildir.

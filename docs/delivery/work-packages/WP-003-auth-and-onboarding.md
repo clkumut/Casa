@@ -6,11 +6,11 @@ V1 kullanicisinin sisteme giris, kayit, ilk profil olusturma ve rol-temelli onbo
 
 ## Durum
 
-`Planned`
+`In Progress`
 
 ## Bagli Emir
 
-- Henuz atanmadi. Resmi execution icin yeni ORD acilacak.
+- [../../orders/ORD-003-auth-and-onboarding.md](../../orders/ORD-003-auth-and-onboarding.md)
 
 ## Dayandigi Kararlar
 
@@ -61,5 +61,5 @@ V1 kullanicisinin sisteme giris, kayit, ilk profil olusturma ve rol-temelli onbo
 
 ## Notlar
 
-- Bu work package icin henuz resmi emir acilmadi.
-- Feature execution baslamis kabul edilmez.
+- ORD-003 acildi ve resmi execution baglami tanimlandi.
+- Ilk uygulama slice'i olarak auth session state ve route guard ailesi uygulama cekirdegine baglaniyor.
