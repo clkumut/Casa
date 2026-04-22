@@ -50,8 +50,55 @@
       <span class="learn-card-label">Route note</span>
       <strong>{{ lesson.title ?? lesson.id }}</strong>
       <p class="muted-text">
-        Execution route acildi. Challenge akisi ve completion command surface sonraki delivery slice'ta bu yuzeye baglanacak.
+        Execution route artik ilk challenge gate ve trusted completion command surface ile calisiyor.
       </p>
+    </section>
+
+    <section class="learn-execution-note" *ngIf="firstChallenge() as firstChallenge">
+      <span class="learn-card-label">First challenge</span>
+      <strong>{{ firstChallenge.title }}</strong>
+      <p class="muted-text">{{ firstChallenge.description }}</p>
+      <span class="muted-text">
+        {{ firstChallenge.hasExplicitReference ? 'Explicit challenge ref' : 'Fallback execution gate' }}:
+        {{ firstChallenge.id }}
+      </span>
+
+      <div class="learn-navigation-row">
+        <button
+          type="button"
+          class="learn-action-button"
+          [disabled]="!canStartChallenge()"
+          (click)="startLessonChallenge()">
+          {{ startChallengeButtonLabel() }}
+        </button>
+        <button
+          type="button"
+          class="learn-action-button is-primary"
+          [disabled]="!canCompleteLesson()"
+          (click)="completeLesson()">
+          {{ completeButtonLabel() }}
+        </button>
+      </div>
+
+      <p class="muted-text">{{ completionHint() }}</p>
+      <span class="muted-text" *ngIf="activeChallengeAttempt() as activeChallengeAttempt">
+        Active attempt: {{ activeChallengeAttempt.status }} · {{ activeChallengeAttempt.challengeId }}
+      </span>
+      <p class="learn-error" *ngIf="commandError()">{{ commandError() }}</p>
+    </section>
+
+    <section class="learn-execution-note" *ngIf="completionResult() as completionResult">
+      <span class="learn-card-label">Completion result</span>
+      <strong>{{ completionResult.status }}</strong>
+      <span class="muted-text">Completed lessons: {{ completionResult.completedLessonCount }}</span>
+      <span class="muted-text">XP: {{ completionResult.lifetimeXp ?? 'atanmadi' }}</span>
+      <span class="muted-text">Hearts: {{ completionResult.currentHearts ?? 'atanmadi' }}</span>
+      <a
+        class="learn-action-link"
+        *ngIf="completionResult.currentLessonId"
+        [routerLink]="resolveLessonLink(completionResult.currentLessonId)">
+        Siradaki lesson entry
+      </a>
     </section>
 
     <div class="learn-navigation-row">

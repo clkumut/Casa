@@ -12,7 +12,12 @@ user-invocable: true
 handoffs:
   - label: Plananı Devam Ettir
     agent: CTO
-    prompt: Gereksiz detaylara girmeden, gereksiz dallanmalara girmeden, uzan Agent işbirligi ile sıradakaki adımdan devam et.
+    prompt: > 
+      Mevcut planı analiz et ve kaldığı noktadan devam et.
+      Gereksiz detaylardan, tekrar eden açıklamalardan ve konu dışı dallanmalardan kaçın.
+      Gerekli durumlarda ilgili uzman agent’larla (ör. UI, Backend, Data) koordinasyon kur.
+      Çıktı; net, uygulanabilir ve bir sonraki aksiyonu doğrudan başlatacak şekilde olsun.
+      Teknik doğruluk, önceliklendirme ve sürdürülebilir mimariyi gözet.
   - label: Mimarigi Detaylandir
     agent: Solution Architect
     prompt: CTO karari dogrultusunda mimariyi detaylandir ve uygulanabilir tasarima donustur.

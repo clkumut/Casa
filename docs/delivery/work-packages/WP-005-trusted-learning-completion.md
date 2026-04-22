@@ -62,3 +62,6 @@ Ders tamamlama, ilerleme, XP ve heart ekonomisini trusted write modeline bagli s
 ## Notlar
 
 - Bu slice V1 cekirdegidir; onceki work package'lar tamamlanmadan baslatilmaz.
+- Resmi ORD henuz acilmadigi icin WP durumu governance geregi `Planned` seviyesinde kalir.
+- Teknik temel dilimi olarak `completeLesson` callable export edildi; idempotent request anahtari ile `learning_completion_events`, `progressionSnapshots/default` ve `rightRailSnapshots/default` guncelleme zinciri acildi.
+- Lesson execution route icinde ilk challenge gate ve minimal completion CTA'si baglandi; sonraki delivery adimi challenge motoru, emulator smoke ve guvenlik sign-off'unu tamamlamaktir.

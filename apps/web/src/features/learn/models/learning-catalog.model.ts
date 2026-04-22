@@ -3,6 +3,7 @@ type FirestoreRecord = Record<string, unknown>;
 export type LearningCatalogNodeKind = 'world' | 'chapter' | 'unit' | 'lesson';
 
 export interface LearningCatalogNodeModel {
+  readonly challengeIds: ReadonlyArray<string>;
   readonly description: string | null;
   readonly id: string;
   readonly kind: LearningCatalogNodeKind;
@@ -49,6 +50,7 @@ export const resolveLearningCatalogNode = (
   const record = asRecord(snapshotData);
 
   return {
+    challengeIds: resolveChallengeIds(record),
     description:
       readString(record, 'description') ??
       readString(record, 'summary') ??
@@ -160,6 +162,45 @@ const resolvePrerequisiteIds = (record: FirestoreRecord | null): ReadonlyArray<s
 
     if (recordIds.length > 0) {
       return [...new Set(recordIds)];
+    }
+  }
+
+  return [];
+};
+
+const resolveChallengeIds = (record: FirestoreRecord | null): ReadonlyArray<string> => {
+  const challengeCandidates = [
+    record?.challengeIds,
+    record?.challengeTemplateIds,
+    record?.challengeRefs,
+    record?.challenges,
+  ];
+
+  for (const candidate of challengeCandidates) {
+    const directIds = readStringArray(candidate);
+
+    if (directIds.length > 0) {
+      return [...new Set(directIds)];
+    }
+
+    if (!Array.isArray(candidate)) {
+      continue;
+    }
+
+    const challengeIds = candidate
+      .map((item) => asRecord(item))
+      .map(
+        (itemRecord) =>
+          readString(itemRecord, 'id')
+          ?? readString(itemRecord, 'ref')
+          ?? readString(itemRecord, 'challengeId')
+          ?? readString(itemRecord, 'challengeTemplateId')
+          ?? readString(itemRecord, 'templateId'),
+      )
+      .filter((item): item is string => item !== null);
+
+    if (challengeIds.length > 0) {
+      return [...new Set(challengeIds)];
     }
   }
 

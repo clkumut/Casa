@@ -15,6 +15,28 @@
   width: fit-content;
 }
 
+.learn-action-button {
+  background: transparent;
+  border: 1px solid var(--casa-border);
+  border-radius: 999px;
+  color: var(--casa-ink);
+  cursor: pointer;
+  font: inherit;
+  font-weight: 700;
+  padding: 0.6rem 0.9rem;
+}
+
+.learn-action-button.is-primary {
+  background: var(--casa-ink);
+  border-color: var(--casa-ink);
+  color: var(--casa-surface, #fff8ee);
+}
+
+.learn-action-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
 .learn-lesson-summary {
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
