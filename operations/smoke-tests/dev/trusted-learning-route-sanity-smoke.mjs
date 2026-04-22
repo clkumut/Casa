@@ -1,5 +1,6 @@
 import { spawn } from 'node:child_process';
-import { existsSync } from 'node:fs';
+import { existsSync, mkdirSync, writeFileSync } from 'node:fs';
+import { createServer } from 'node:net';
 import { dirname, resolve } from 'node:path';
 import { setTimeout as delay } from 'node:timers/promises';
 import { fileURLToPath } from 'node:url';
@@ -9,13 +10,37 @@ import { chromium } from 'playwright-core';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const workspaceRoot = resolve(__dirname, '..', '..', '..');
-const appPort = 4310;
+const DEFAULT_APP_PORT = 4310;
+const appPort = await findAvailablePort(DEFAULT_APP_PORT);
 const appBaseUrl = `http://127.0.0.1:${appPort}`;
 
 const EDGE_CANDIDATE_PATHS = [
   'C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe',
   'C:/Program Files/Microsoft/Edge/Application/msedge.exe',
 ];
+const RUN_TIMEOUT_MS = 120000;
+
+async function findAvailablePort(startingPort, attempts = 20) {
+  for (let port = startingPort; port < startingPort + attempts; port += 1) {
+    const isAvailable = await new Promise((resolvePort) => {
+      const server = createServer();
+
+      server.unref();
+      server.once('error', () => {
+        resolvePort(false);
+      });
+      server.listen(port, '127.0.0.1', () => {
+        server.close(() => resolvePort(true));
+      });
+    });
+
+    if (isAvailable) {
+      return port;
+    }
+  }
+
+  throw new Error(`Could not find an available static server port after ${attempts} attempts.`);
+}
 
 const waitForHttpOk = async (url, timeoutMs = 10000) => {
   const startTime = Date.now();
@@ -38,6 +63,7 @@ const waitForHttpOk = async (url, timeoutMs = 10000) => {
 };
 
 const logStep = (message) => {
+  currentStep = message;
   console.log(`[route-sanity] ${message}`);
 };
 
@@ -158,11 +184,18 @@ const waitForBodyText = async (page, expectedText, timeoutMs = 10000) => {
 };
 
 let browser = null;
+let context = null;
 let page = null;
 let serverProcess = null;
 let serverOutput = null;
+let consoleMessages = [];
+let currentStep = 'initializing';
+const artifactsDir = resolve(__dirname, 'artifacts');
+mkdirSync(artifactsDir, { recursive: true });
 
 try {
+  await Promise.race([
+    (async () => {
   logStep('seeding emulator data');
   const seed = await runSeedScript();
   logStep(`seed ready for ${seed.email}`);
@@ -176,8 +209,61 @@ try {
   });
   logStep('headless browser launched');
 
-  page = await browser.newPage();
-  page.setDefaultTimeout(10000);
+  context = await browser.newContext();
+  // start Playwright tracing to capture snapshots and screenshots
+  try {
+    // tracing API may not be available in older playwright-core builds; guard it
+    if (context?.tracing?.start) {
+      await context.tracing.start({ screenshots: true, snapshots: true });
+    }
+  } catch (e) {
+    // non-fatal; continue
+    console.warn('Tracing start failed:', e?.message || e);
+  }
+
+  page = await context.newPage();
+  // Inject init-time error handlers so we capture errors during app bootstrap
+  try {
+    await context.addInitScript({
+      content: `
+        (function () {
+          try {
+            window.__smoke_errors = [];
+            window.addEventListener('error', function (e) {
+              try { window.__smoke_errors.push('error:' + (e && e.message ? e.message : String(e))); } catch (e) {}
+              console.error('SMOKE_WINDOW_ERROR', e && e.message ? e.message : e);
+            });
+            window.addEventListener('unhandledrejection', function (e) {
+              try { window.__smoke_errors.push('unhandled:' + (e && e.reason && e.reason.message ? e.reason.message : String(e.reason))); } catch (e) {}
+              console.error('SMOKE_UNHANDLED_REJECTION', e && e.reason ? (e.reason.message || String(e.reason)) : String(e));
+            });
+          } catch (e) { console.error('SMOKE_INIT_INJECTION_FAILED', e && e.message ? e.message : String(e)); }
+        })();
+      `,
+    });
+  } catch (e) {
+    // non-fatal
+    console.warn('addInitScript failed:', e?.message || e);
+  }
+  page.on('console', (msg) => {
+    try {
+      consoleMessages.push(`${msg.type()}: ${msg.text()}`);
+    } catch {
+      // ignore
+    }
+  });
+  page.on('pageerror', (err) => {
+    try {
+      consoleMessages.push(`pageerror: ${err?.message || String(err)}`);
+    } catch {}
+  });
+  page.on('requestfailed', (req) => {
+    try {
+      const f = req.failure ? req.failure() : null;
+      consoleMessages.push(`requestfailed: ${req.url()} ${f ? f.errorText || f.error || '' : ''}`);
+    } catch {}
+  });
+  page.setDefaultTimeout(20000);
 
   await page.goto(`${appBaseUrl}/auth/login`, { waitUntil: 'domcontentloaded' });
   logStep('login page opened');
@@ -188,12 +274,10 @@ try {
   await waitForBodyText(page, 'Authenticated');
   logStep('authenticated session confirmed');
 
-  await page.evaluate(() => {
-    history.pushState({}, '', '/app/learn');
-    window.dispatchEvent(new PopStateEvent('popstate'));
-  });
-  logStep('learn home route opened');
-  await waitForBodyText(page, 'Ogrenme haritasi bootstrap gorunumu');
+  // Navigate to the learn route directly to ensure Angular bootstraps with that URL
+  await page.goto(`${appBaseUrl}/app/learn`, { waitUntil: 'domcontentloaded' });
+  logStep('learn home route opened (navigated)');
+  await waitForBodyText(page, 'Ogrenme haritasi bootstrap gorunumu', 30000);
   await waitForBodyText(page, 'Unit detail');
   logStep('learn home content confirmed');
 
@@ -239,6 +323,27 @@ try {
       2,
     ),
   );
+  // capture success artifacts
+  try {
+    const screenshotPath = resolve(artifactsDir, `screenshot-success-${Date.now()}.png`);
+    await page.screenshot({ path: screenshotPath, fullPage: true });
+    try {
+      if (context?.tracing?.stop) {
+        const tracePath = resolve(artifactsDir, `trace-success-${Date.now()}.zip`);
+        await context.tracing.stop({ path: tracePath });
+        console.log(JSON.stringify({ artifact: { screenshot: screenshotPath, trace: tracePath } }));
+      }
+    } catch (e) {
+      console.warn('Tracing stop failed:', e?.message || e);
+    }
+  } catch (e) {
+    console.warn('Could not write success screenshot/trace:', e?.message || e);
+  }
+    })(),
+    delay(RUN_TIMEOUT_MS).then(() => {
+      throw new Error(`Smoke watchdog exceeded while waiting at step: ${currentStep}`);
+    }),
+  ]);
 } catch (error) {
   const failureContext = page && !page.isClosed()
     ? {
@@ -247,8 +352,32 @@ try {
           delay(1000).then(() => 'unavailable'),
         ]).catch(() => 'unavailable'),
         url: page.url(),
+        bodyText: await page.evaluate(() => document.body ? document.body.innerText : null).catch(() => null),
+        consoleDump: consoleMessages.slice(-200).join('\n'),
       }
     : null;
+  // attempt to capture screenshot and trace on failure
+  try {
+    if (page && !page.isClosed()) {
+      const failureScreenshot = resolve(artifactsDir, `screenshot-failure-${Date.now()}.png`);
+      await page.screenshot({ path: failureScreenshot, fullPage: true }).catch(() => {});
+      // try to stop tracing
+      try {
+        if (context?.tracing?.stop) {
+          const failureTrace = resolve(artifactsDir, `trace-failure-${Date.now()}.zip`);
+          await context.tracing.stop({ path: failureTrace }).catch(() => {});
+          // attach artifact paths to failureContext
+          failureContext.artifacts = { screenshot: failureScreenshot, trace: failureTrace };
+        } else {
+          failureContext.artifacts = { screenshot: failureScreenshot };
+        }
+      } catch (e) {
+        // ignore tracing stop errors
+      }
+    }
+  } catch (e) {
+    // ignore artifact capture errors
+  }
 
   console.error(
     JSON.stringify(

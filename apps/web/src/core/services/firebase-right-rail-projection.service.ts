@@ -4,7 +4,13 @@ import type { Firestore, Unsubscribe } from 'firebase/firestore';
 
 import { AuthSessionStore } from '../state/auth-session.store';
 import { CASA_RUNTIME_CONFIG } from '../config/casa-runtime-config.token';
-import { connectFirestoreEmulatorOnce } from '../config/firebase-emulator-connect';
+import {
+  connectFirestoreEmulatorOnce,
+  connectLiteFirestoreEmulatorOnce,
+  resolveFirestoreInstance,
+  resolveLiteFirestoreInstance,
+  shouldUseFirestoreOneShotReads,
+} from '../config/firebase-emulator-connect';
 import { RightRailStore } from '../state/right-rail.store';
 import { resolveRightRailSnapshot } from '../state/models/right-rail-snapshot.model';
 
@@ -73,10 +79,21 @@ export class FirebaseRightRailProjectionService {
   }
 
   private async connectSnapshot(uid: string): Promise<Unsubscribe> {
+    if (shouldUseFirestoreOneShotReads(this.runtimeConfig.useEmulators)) {
+      return this.readSnapshotOnce(uid);
+    }
+
     const { firestore, firestoreModule } = await this.getInitializedFirestoreClients();
+    const snapshotReference = firestoreModule.doc(
+      firestore,
+      'users',
+      uid,
+      'rightRailSnapshots',
+      'default',
+    );
 
     return firestoreModule.onSnapshot(
-      firestoreModule.doc(firestore, 'users', uid, 'rightRailSnapshots', 'default'),
+      snapshotReference,
       (snapshot) => {
         this.rightRailStore.setReady(resolveRightRailSnapshot(snapshot.data()));
         this.resolveCurrentReadyPromise();
@@ -86,6 +103,33 @@ export class FirebaseRightRailProjectionService {
         this.resolveCurrentReadyPromise();
       },
     );
+  }
+
+  private async readSnapshotOnce(uid: string): Promise<Unsubscribe> {
+    const firebaseApp = await this.getInitializedFirebaseApp();
+    const firestoreLiteModule = await import('firebase/firestore/lite');
+    const firestore = resolveLiteFirestoreInstance(
+      firestoreLiteModule,
+      firebaseApp,
+    );
+
+    if (this.runtimeConfig.useEmulators) {
+      connectLiteFirestoreEmulatorOnce(firestoreLiteModule, firestore);
+    }
+
+    try {
+      const snapshot = await firestoreLiteModule.getDoc(
+        firestoreLiteModule.doc(firestore, 'users', uid, 'rightRailSnapshots', 'default'),
+      );
+
+      this.rightRailStore.setReady(resolveRightRailSnapshot(snapshot.data()));
+      this.resolveCurrentReadyPromise();
+    } catch {
+      this.rightRailStore.setError();
+      this.resolveCurrentReadyPromise();
+    }
+
+    return () => undefined;
   }
 
   private async initializeFirestore(): Promise<void> {
@@ -102,7 +146,11 @@ export class FirebaseRightRailProjectionService {
 
     this.firestoreModule = firestoreModule;
     this.firebaseApp = this.resolveFirebaseApp(appModule);
-    this.firestore = firestoreModule.getFirestore(this.firebaseApp);
+    this.firestore = resolveFirestoreInstance(
+      firestoreModule,
+      this.firebaseApp,
+      this.runtimeConfig.useEmulators,
+    );
     this.connectFirestoreEmulatorIfNeeded(firestoreModule, this.firestore);
   }
 
@@ -142,6 +190,16 @@ export class FirebaseRightRailProjectionService {
       firestore: this.firestore,
       firestoreModule: this.firestoreModule,
     };
+  }
+
+  private async getInitializedFirebaseApp(): Promise<FirebaseApp> {
+    await this.initializeFirestore();
+
+    if (!this.firebaseApp) {
+      throw new Error('Firebase app was not initialized.');
+    }
+
+    return this.firebaseApp;
   }
 
   private resetReadyPromise(): void {

@@ -4,7 +4,14 @@ import type { Auth, User } from 'firebase/auth';
 import type { Firestore, Unsubscribe } from 'firebase/firestore';
 
 import { CASA_RUNTIME_CONFIG } from '../config/casa-runtime-config.token';
-import { connectAuthEmulatorOnce, connectFirestoreEmulatorOnce } from '../config/firebase-emulator-connect';
+import {
+  connectAuthEmulatorOnce,
+  connectFirestoreEmulatorOnce,
+  connectLiteFirestoreEmulatorOnce,
+  resolveFirestoreInstance,
+  resolveLiteFirestoreInstance,
+  shouldUseFirestoreOneShotReads,
+} from '../config/firebase-emulator-connect';
 import { AuthSessionStore } from '../state/auth-session.store';
 import { resolveCasaRoles } from './auth-claims.util';
 import {
@@ -70,7 +77,11 @@ export class FirebaseAuthSessionService {
     this.firestoreModule = firestoreModule;
     this.firebaseApp = this.resolveFirebaseApp(appModule);
     this.auth = authModule.getAuth(this.firebaseApp);
-    this.firestore = firestoreModule.getFirestore(this.firebaseApp);
+    this.firestore = resolveFirestoreInstance(
+      firestoreModule,
+      this.firebaseApp,
+      this.runtimeConfig.useEmulators,
+    );
 
     this.connectAuthEmulatorIfNeeded(authModule, this.auth);
     this.connectFirestoreEmulatorIfNeeded(firestoreModule, this.firestore);
@@ -154,10 +165,17 @@ export class FirebaseAuthSessionService {
   }
 
   private startUserProfileSync(uid: string): void {
-    const { firestore, firestoreModule } = this.getReadyFirestoreClients();
-    const userDocumentReference = firestoreModule.doc(firestore, 'users', uid);
+    const useOneShotReads = shouldUseFirestoreOneShotReads(this.runtimeConfig.useEmulators);
 
     this.stopUserProfileSync();
+
+    if (useOneShotReads) {
+      void this.readUserProfileOnce(uid);
+      return;
+    }
+
+    const { firestore, firestoreModule } = this.getReadyFirestoreClients();
+    const userDocumentReference = firestoreModule.doc(firestore, 'users', uid);
 
     void firestoreModule
       .getDoc(userDocumentReference)
@@ -189,6 +207,34 @@ export class FirebaseAuthSessionService {
         );
       },
     );
+  }
+
+  private async readUserProfileOnce(uid: string): Promise<void> {
+    const firebaseApp = this.getReadyFirebaseApp();
+    const firestoreLiteModule = await import('firebase/firestore/lite');
+    const firestore = resolveLiteFirestoreInstance(
+      firestoreLiteModule,
+      firebaseApp,
+    );
+
+    if (this.runtimeConfig.useEmulators) {
+      connectLiteFirestoreEmulatorOnce(firestoreLiteModule, firestore);
+    }
+
+    try {
+      const snapshot = await firestoreLiteModule.getDoc(
+        firestoreLiteModule.doc(firestore, 'users', uid),
+      );
+      const userProfile = snapshot.data() as UserProfileSnapshotModel | undefined;
+
+      this.authSessionStore.updateAuthenticatedOnboardingProgress(
+        resolveOnboardingProgressFromUserProfile(userProfile),
+      );
+    } catch {
+      this.authSessionStore.updateAuthenticatedOnboardingProgress(
+        resolveOnboardingProgressFromUserProfile(undefined),
+      );
+    }
   }
 
   private stopUserProfileSync(): void {
@@ -224,5 +270,13 @@ export class FirebaseAuthSessionService {
       firestore: this.firestore,
       firestoreModule: this.firestoreModule,
     };
+  }
+
+  private getReadyFirebaseApp(): FirebaseApp {
+    if (!this.firebaseApp) {
+      throw new Error('Firebase app was not initialized.');
+    }
+
+    return this.firebaseApp;
   }
 }

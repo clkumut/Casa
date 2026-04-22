@@ -1,9 +1,16 @@
 import { Injectable, inject } from '@angular/core';
 import type { FirebaseApp } from 'firebase/app';
 import type { Firestore, Unsubscribe } from 'firebase/firestore';
+import type { Firestore as FirestoreLite } from 'firebase/firestore/lite';
 
 import { CASA_RUNTIME_CONFIG } from '../../../core/config/casa-runtime-config.token';
-import { connectFirestoreEmulatorOnce } from '../../../core/config/firebase-emulator-connect';
+import {
+  connectFirestoreEmulatorOnce,
+  connectLiteFirestoreEmulatorOnce,
+  resolveFirestoreInstance,
+  resolveLiteFirestoreInstance,
+  shouldUseFirestoreOneShotReads,
+} from '../../../core/config/firebase-emulator-connect';
 import {
   EMPTY_LEARNING_CATALOG_MAP,
   EMPTY_LEARNING_CATALOG_SELECTION,
@@ -22,6 +29,11 @@ type LearningCatalogCollectionName =
   | 'catalog_learning_chapters'
   | 'catalog_learning_units'
   | 'catalog_learning_lessons';
+
+type FirestoreReadModule = Pick<
+  typeof import('firebase/firestore/lite'),
+  'collection' | 'doc' | 'getDoc' | 'getDocs' | 'query' | 'where'
+>;
 
 @Injectable({ providedIn: 'root' })
 export class FirebaseLearnBootstrapRepository {
@@ -47,9 +59,55 @@ export class FirebaseLearnBootstrapRepository {
   ): Promise<Unsubscribe> {
     const { firestore, firestoreModule } = await this.getInitializedFirestoreClients();
     let requestVersion = 0;
+    const progressionCollection = firestoreModule.collection(
+      firestore,
+      'users',
+      uid,
+      'progressionSnapshots',
+    );
+
+    if (shouldUseFirestoreOneShotReads(this.runtimeConfig.useEmulators)) {
+      try {
+        const firebaseApp = this.getReadyFirebaseApp();
+        const firestoreLiteModule = await import('firebase/firestore/lite');
+        const liteFirestore = resolveLiteFirestoreInstance(
+          firestoreLiteModule,
+          firebaseApp,
+        );
+
+        if (this.runtimeConfig.useEmulators) {
+          connectLiteFirestoreEmulatorOnce(firestoreLiteModule, liteFirestore);
+        }
+
+        const snapshot = await firestoreLiteModule.getDocs(
+          firestoreLiteModule.collection(liteFirestore, 'users', uid, 'progressionSnapshots'),
+        );
+        const progression = resolveLearningProgression(
+          snapshot.docs.map((documentSnapshot) => ({
+            id: documentSnapshot.id,
+            data: documentSnapshot.data(),
+          })),
+        );
+        const { catalog, catalogMap } = await this.loadCatalogData(
+          liteFirestore,
+          firestoreLiteModule,
+          progression,
+        );
+
+        onValue({
+          catalog,
+          catalogMap,
+          progression,
+        });
+      } catch {
+        onError();
+      }
+
+      return () => undefined;
+    }
 
     return firestoreModule.onSnapshot(
-      firestoreModule.collection(firestore, 'users', uid, 'progressionSnapshots'),
+      progressionCollection,
       async (snapshot) => {
         const currentRequestVersion = ++requestVersion;
         const progression = resolveLearningProgression(
@@ -88,8 +146,8 @@ export class FirebaseLearnBootstrapRepository {
   }
 
   private async loadCatalogData(
-    firestore: Firestore,
-    firestoreModule: Awaited<typeof FirebaseLearnBootstrapRepository.FIREBASE_MODULES>[1],
+    firestore: FirestoreLite,
+    firestoreModule: FirestoreReadModule,
     progression: LearningProgressionModel | null,
   ): Promise<Pick<LearnBootstrapReadModel, 'catalog' | 'catalogMap'>> {
     const [worlds, chapters, units, world, chapter, unit, lesson] = await Promise.all([
@@ -169,8 +227,8 @@ export class FirebaseLearnBootstrapRepository {
   }
 
   private async readPublishedCatalogCollection(
-    firestore: Firestore,
-    firestoreModule: Awaited<typeof FirebaseLearnBootstrapRepository.FIREBASE_MODULES>[1],
+    firestore: FirestoreLite,
+    firestoreModule: FirestoreReadModule,
     collectionName: LearningCatalogCollectionName,
     kind: LearningCatalogNodeKind,
     parentId?: string,
@@ -190,8 +248,8 @@ export class FirebaseLearnBootstrapRepository {
   }
 
   private async readPublishedCatalogCollectionByParentIds(
-    firestore: Firestore,
-    firestoreModule: Awaited<typeof FirebaseLearnBootstrapRepository.FIREBASE_MODULES>[1],
+    firestore: FirestoreLite,
+    firestoreModule: FirestoreReadModule,
     collectionName: LearningCatalogCollectionName,
     kind: LearningCatalogNodeKind,
     parentIds: ReadonlyArray<string>,
@@ -204,6 +262,22 @@ export class FirebaseLearnBootstrapRepository {
     }
 
     const parentIdLookup = new Set(normalizedParentIds);
+
+    if (this.runtimeConfig.useEmulators) {
+      const collectionSnapshot = await firestoreModule.getDocs(
+        firestoreModule.collection(firestore, collectionName),
+      );
+
+      return sortLearningCatalogNodes(
+        collectionSnapshot.docs
+          .map((documentSnapshot) =>
+            resolveLearningCatalogNode(kind, documentSnapshot.id, documentSnapshot.data()),
+          )
+          .filter((node) => isPublishedLearningCatalogNode(node))
+          .filter((node) => node.parentId !== null && parentIdLookup.has(node.parentId)),
+      );
+    }
+
     const parentIdChunks = this.chunkValues(
       normalizedParentIds,
       FirebaseLearnBootstrapRepository.IN_QUERY_BATCH_LIMIT,
@@ -238,8 +312,8 @@ export class FirebaseLearnBootstrapRepository {
   }
 
   private async readCatalogDocument(
-    firestore: Firestore,
-    firestoreModule: Awaited<typeof FirebaseLearnBootstrapRepository.FIREBASE_MODULES>[1],
+    firestore: FirestoreLite,
+    firestoreModule: FirestoreReadModule,
     collectionName: LearningCatalogCollectionName,
     documentId: string | null,
     kind: LearningCatalogNodeKind,
@@ -294,7 +368,11 @@ export class FirebaseLearnBootstrapRepository {
 
     this.firestoreModule = firestoreModule;
     this.firebaseApp = this.resolveFirebaseApp(appModule);
-    this.firestore = firestoreModule.getFirestore(this.firebaseApp);
+    this.firestore = resolveFirestoreInstance(
+      firestoreModule,
+      this.firebaseApp,
+      this.runtimeConfig.useEmulators,
+    );
     this.connectFirestoreEmulatorIfNeeded(firestoreModule, this.firestore);
   }
 
@@ -334,5 +412,13 @@ export class FirebaseLearnBootstrapRepository {
       firestore: this.firestore,
       firestoreModule: this.firestoreModule,
     };
+  }
+
+  private getReadyFirebaseApp(): FirebaseApp {
+    if (!this.firebaseApp) {
+      throw new Error('Firebase app was not initialized.');
+    }
+
+    return this.firebaseApp;
   }
 }

@@ -3,7 +3,10 @@ import type { FirebaseApp } from 'firebase/app';
 import type { Firestore, Unsubscribe } from 'firebase/firestore';
 
 import { CASA_RUNTIME_CONFIG } from '../../../core/config/casa-runtime-config.token';
-import { connectFirestoreEmulatorOnce } from '../../../core/config/firebase-emulator-connect';
+import {
+  connectFirestoreEmulatorOnce,
+  resolveFirestoreInstance,
+} from '../../../core/config/firebase-emulator-connect';
 import {
   EMPTY_ONBOARDING_DRAFT,
   type OnboardingDraftModel,
@@ -101,7 +104,11 @@ export class FirebaseOnboardingReadRepository {
 
     this.firestoreModule = firestoreModule;
     this.firebaseApp = this.resolveFirebaseApp(appModule);
-    this.firestore = firestoreModule.getFirestore(this.firebaseApp);
+    this.firestore = resolveFirestoreInstance(
+      firestoreModule,
+      this.firebaseApp,
+      this.runtimeConfig.useEmulators,
+    );
     this.connectFirestoreEmulatorIfNeeded(firestoreModule, this.firestore);
   }
 
