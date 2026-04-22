@@ -3,7 +3,9 @@ import { Injectable, computed, effect, inject, signal } from '@angular/core';
 import { AuthSessionStore } from '../../../core/state/auth-session.store';
 import { FirebaseLearnBootstrapRepository } from '../infrastructure/firebase-learn-bootstrap.repository';
 import {
+  EMPTY_LEARNING_CATALOG_MAP,
   EMPTY_LEARNING_CATALOG_SELECTION,
+  type LearningCatalogMapModel,
   type LearningCatalogSelectionModel,
 } from '../models/learning-catalog.model';
 import type { LearningProgressionModel } from '../models/learning-progression.model';
@@ -12,12 +14,14 @@ type LearnBootstrapStatus = 'idle' | 'loading' | 'ready' | 'error';
 
 interface LearnBootstrapStateModel {
   readonly catalog: LearningCatalogSelectionModel;
+  readonly catalogMap: LearningCatalogMapModel;
   readonly progression: LearningProgressionModel | null;
   readonly status: LearnBootstrapStatus;
 }
 
 const INITIAL_LEARN_BOOTSTRAP_STATE: LearnBootstrapStateModel = {
   catalog: EMPTY_LEARNING_CATALOG_SELECTION,
+  catalogMap: EMPTY_LEARNING_CATALOG_MAP,
   progression: null,
   status: 'idle',
 };
@@ -31,6 +35,7 @@ export class LearnBootstrapFacade {
   );
 
   public readonly catalog = computed(() => this.learnBootstrapState().catalog);
+  public readonly catalogMap = computed(() => this.learnBootstrapState().catalogMap);
   public readonly progression = computed(() => this.learnBootstrapState().progression);
   public readonly state = this.learnBootstrapState.asReadonly();
   public readonly status = computed(() => this.learnBootstrapState().status);
@@ -47,6 +52,7 @@ export class LearnBootstrapFacade {
 
         this.learnBootstrapState.set({
           catalog: this.learnBootstrapState().catalog,
+          catalogMap: this.learnBootstrapState().catalogMap,
           progression: this.learnBootstrapState().progression,
           status: 'loading',
         });
@@ -57,13 +63,14 @@ export class LearnBootstrapFacade {
         void this.learnBootstrapRepository
           .watchLearnBootstrap(
             session.uid,
-            ({ catalog, progression }) => {
+            ({ catalog, catalogMap, progression }) => {
               if (!isActive) {
                 return;
               }
 
               this.learnBootstrapState.set({
                 catalog,
+                catalogMap,
                 progression,
                 status: 'ready',
               });
@@ -75,6 +82,7 @@ export class LearnBootstrapFacade {
 
               this.learnBootstrapState.set({
                 catalog: EMPTY_LEARNING_CATALOG_SELECTION,
+                catalogMap: EMPTY_LEARNING_CATALOG_MAP,
                 progression: null,
                 status: 'error',
               });

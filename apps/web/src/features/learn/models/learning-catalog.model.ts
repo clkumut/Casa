@@ -9,7 +9,14 @@ export interface LearningCatalogNodeModel {
   readonly order: number | null;
   readonly parentId: string | null;
   readonly publishState: string | null;
+  readonly prerequisiteIds: ReadonlyArray<string>;
   readonly title: string | null;
+}
+
+export interface LearningCatalogMapModel {
+  readonly chapters: ReadonlyArray<LearningCatalogNodeModel>;
+  readonly units: ReadonlyArray<LearningCatalogNodeModel>;
+  readonly worlds: ReadonlyArray<LearningCatalogNodeModel>;
 }
 
 export interface LearningCatalogSelectionModel {
@@ -17,6 +24,12 @@ export interface LearningCatalogSelectionModel {
   readonly unit: LearningCatalogNodeModel | null;
   readonly world: LearningCatalogNodeModel | null;
 }
+
+export const EMPTY_LEARNING_CATALOG_MAP: LearningCatalogMapModel = {
+  chapters: [],
+  units: [],
+  worlds: [],
+};
 
 export const EMPTY_LEARNING_CATALOG_SELECTION: LearningCatalogSelectionModel = {
   chapter: null,
@@ -38,18 +51,52 @@ export const resolveLearningCatalogNode = (
       readString(record, 'subtitle'),
     id: documentId,
     kind,
-    order: readNumber(record, 'order') ?? readNumber(record, 'sequence') ?? readNumber(record, 'sortOrder'),
+    order:
+      readNumber(record, 'order') ??
+      readNumber(record, 'sequence') ??
+      readNumber(record, 'sortOrder'),
     parentId: resolveParentId(kind, record),
     publishState:
       readString(record, 'publishState') ??
       readString(record, 'status') ??
       readString(record, 'state'),
+    prerequisiteIds: resolvePrerequisiteIds(record),
     title:
       readString(record, 'title') ??
       readString(record, 'label') ??
       readString(record, 'name') ??
       readString(record, 'displayName'),
   };
+};
+
+export const isPublishedLearningCatalogNode = (node: LearningCatalogNodeModel): boolean => {
+  if (!node.publishState) {
+    return false;
+  }
+
+  const normalizedPublishState = node.publishState.toLowerCase();
+
+  return normalizedPublishState === 'published'
+    || normalizedPublishState === 'active'
+    || normalizedPublishState === 'live';
+};
+
+export const sortLearningCatalogNodes = (
+  nodes: ReadonlyArray<LearningCatalogNodeModel>,
+): ReadonlyArray<LearningCatalogNodeModel> => {
+  return [...nodes].sort((left, right) => {
+    const leftOrder = left.order ?? Number.MAX_SAFE_INTEGER;
+    const rightOrder = right.order ?? Number.MAX_SAFE_INTEGER;
+
+    if (leftOrder !== rightOrder) {
+      return leftOrder - rightOrder;
+    }
+
+    const leftTitle = left.title ?? left.id;
+    const rightTitle = right.title ?? right.id;
+
+    return leftTitle.localeCompare(rightTitle, 'en');
+  });
 };
 
 const asRecord = (value: unknown): FirestoreRecord | null => {
@@ -66,6 +113,53 @@ const readString = (record: FirestoreRecord | null, key: string): string | null 
   const value = record?.[key];
 
   return typeof value === 'string' && value.length > 0 ? value : null;
+};
+
+const readStringArray = (value: unknown): ReadonlyArray<string> => {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+
+  return value.filter((item): item is string => typeof item === 'string' && item.length > 0);
+};
+
+const resolvePrerequisiteIds = (record: FirestoreRecord | null): ReadonlyArray<string> => {
+  const prerequisiteCandidates = [
+    record?.prerequisiteUnitIds,
+    record?.prerequisiteChapterIds,
+    record?.prerequisiteIds,
+    record?.prerequisiteRefs,
+    record?.prerequisites,
+  ];
+
+  for (const candidate of prerequisiteCandidates) {
+    const directIds = readStringArray(candidate);
+
+    if (directIds.length > 0) {
+      return [...new Set(directIds)];
+    }
+
+    if (!Array.isArray(candidate)) {
+      continue;
+    }
+
+    const recordIds = candidate
+      .map((item) => asRecord(item))
+      .map(
+        (itemRecord) =>
+          readString(itemRecord, 'id')
+          ?? readString(itemRecord, 'ref')
+          ?? readString(itemRecord, 'unitId')
+          ?? readString(itemRecord, 'chapterId'),
+      )
+      .filter((item): item is string => item !== null);
+
+    if (recordIds.length > 0) {
+      return [...new Set(recordIds)];
+    }
+  }
+
+  return [];
 };
 
 const resolveParentId = (

@@ -45,7 +45,9 @@ Casa V1 kullanicisinin login, register ve onboarding akislarini resmi delivery s
 - Firestore rules `users/{uid}/progressionSnapshots/*` owner-read izniyle bu bootstrap okumasini destekliyor.
 - Learn bootstrap, current `catalog_learning_worlds`, `catalog_learning_chapters` ve `catalog_learning_units` belgelerini progression snapshot ile ayni read modelde cozmeye basladi.
 - Firestore rules ilgili learning catalog koleksiyonlari icin public read izniyle bu merkez-stage okumasini destekliyor.
-- Siradaki slice, published world/chapter/unit liste ve prerequisite baglarini learn bootstrap yuzeyine ekleyerek learning map'in ilk liste gorunumunu acmaktir.
+- `/app/learn` published world/chapter/unit listelerini render ediyor ve current progression bagina gore ilgili chapter ile unit kesitini merkez-stage'de gosteriyor.
+- Unit prerequisite refs, learn liste gorunumunde ilk onkosul ipucu olarak acildi.
+- Siradaki slice, `/app/learn/world/:worldId` ve `/app/learn/unit/:unitId` route ailelerini acarak liste gorunumunden detay akisina gecmektir.
 
 ## Beklenen Ciktilar
 

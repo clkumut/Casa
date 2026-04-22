@@ -78,4 +78,6 @@ V1 kullanicisinin sisteme giris, kayit, ilk profil olusturma ve rol-temelli onbo
 - Firestore rules, `users/{uid}/progressionSnapshots/*` owner-read cizgisiyle learn bootstrap okumasi icin acildi.
 - Learn bootstrap read modeli current `catalog_learning_worlds`, `catalog_learning_chapters` ve `catalog_learning_units` belgelerini progression snapshot ile birlestiriyor; `/app/learn` artik yalniz id degil catalog metadata da gosteriyor.
 - Firestore rules, `catalog_learning_worlds`, `catalog_learning_chapters` ve `catalog_learning_units` icin public read cizgisini acarak learning map bootstrap kontratini bloke etmiyor.
-- Siradaki teknik slice, published world/chapter/unit liste ve prerequisite baglarini learn merkez-stage yuzeyine ekleyerek ilk learning map liste gorunumunu acmaktir.
+- `/app/learn` published world/chapter/unit listelerini ayni read modelde cozmeye basladi; current world ve chapter bagina gore filtrelenmis liste gorunumu merkez-stage'e tasindi.
+- Unit kartlari, catalog icindeki prerequisite refs alanlarini okuyarak ilk onkosul baglarini learn yuzeyinde gostermeye basladi.
+- Siradaki teknik slice, `/app/learn/world/:worldId` ve `/app/learn/unit/:unitId` route ailelerini acarak liste gorunumunden detay akisina gecmektir.

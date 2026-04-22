@@ -4,9 +4,13 @@ import type { Firestore, Unsubscribe } from 'firebase/firestore';
 
 import { CASA_RUNTIME_CONFIG } from '../../../core/config/casa-runtime-config.token';
 import {
+  EMPTY_LEARNING_CATALOG_MAP,
   EMPTY_LEARNING_CATALOG_SELECTION,
+  isPublishedLearningCatalogNode,
   resolveLearningCatalogNode,
+  sortLearningCatalogNodes,
   type LearningCatalogNodeKind,
+  type LearningCatalogNodeModel,
   type LearningCatalogSelectionModel,
 } from '../models/learning-catalog.model';
 import type { LearnBootstrapReadModel } from '../models/learn-bootstrap-read.model';
@@ -48,7 +52,11 @@ export class FirebaseLearnBootstrapRepository {
         );
 
         try {
-          const catalog = await this.loadCatalogSelection(firestore, firestoreModule, progression);
+          const { catalog, catalogMap } = await this.loadCatalogData(
+            firestore,
+            firestoreModule,
+            progression,
+          );
 
           if (currentRequestVersion !== requestVersion) {
             return;
@@ -56,6 +64,7 @@ export class FirebaseLearnBootstrapRepository {
 
           onValue({
             catalog,
+            catalogMap,
             progression,
           });
         } catch {
@@ -70,44 +79,87 @@ export class FirebaseLearnBootstrapRepository {
     );
   }
 
-  private async loadCatalogSelection(
+  private async loadCatalogData(
     firestore: Firestore,
     firestoreModule: Awaited<typeof FirebaseLearnBootstrapRepository.FIREBASE_MODULES>[1],
     progression: LearningProgressionModel | null,
-  ): Promise<LearningCatalogSelectionModel> {
-    if (!progression) {
-      return EMPTY_LEARNING_CATALOG_SELECTION;
-    }
-
-    const [world, chapter, unit] = await Promise.all([
+  ): Promise<Pick<LearnBootstrapReadModel, 'catalog' | 'catalogMap'>> {
+    const [worlds, chapters, units, world, chapter, unit] = await Promise.all([
+      this.readPublishedCatalogCollection(firestore, firestoreModule, 'catalog_learning_worlds', 'world'),
+      progression?.currentWorldId
+        ? this.readPublishedCatalogCollection(
+            firestore,
+            firestoreModule,
+            'catalog_learning_chapters',
+            'chapter',
+            progression.currentWorldId,
+          )
+        : Promise.resolve(EMPTY_LEARNING_CATALOG_MAP.chapters),
+      progression?.currentChapterId
+        ? this.readPublishedCatalogCollection(
+            firestore,
+            firestoreModule,
+            'catalog_learning_units',
+            'unit',
+            progression.currentChapterId,
+          )
+        : Promise.resolve(EMPTY_LEARNING_CATALOG_MAP.units),
       this.readCatalogDocument(
         firestore,
         firestoreModule,
         'catalog_learning_worlds',
-        progression.currentWorldId,
+        progression?.currentWorldId ?? null,
         'world',
       ),
       this.readCatalogDocument(
         firestore,
         firestoreModule,
         'catalog_learning_chapters',
-        progression.currentChapterId,
+        progression?.currentChapterId ?? null,
         'chapter',
       ),
       this.readCatalogDocument(
         firestore,
         firestoreModule,
         'catalog_learning_units',
-        progression.currentUnitId,
+        progression?.currentUnitId ?? null,
         'unit',
       ),
     ]);
 
     return {
-      chapter,
-      unit,
-      world,
+      catalog: {
+        chapter: this.resolveSelectedCatalogNode(chapters, chapter),
+        unit: this.resolveSelectedCatalogNode(units, unit),
+        world: this.resolveSelectedCatalogNode(worlds, world),
+      },
+      catalogMap: {
+        chapters,
+        units,
+        worlds,
+      },
     };
+  }
+
+  private async readPublishedCatalogCollection(
+    firestore: Firestore,
+    firestoreModule: Awaited<typeof FirebaseLearnBootstrapRepository.FIREBASE_MODULES>[1],
+    collectionName: 'catalog_learning_worlds' | 'catalog_learning_chapters' | 'catalog_learning_units',
+    kind: LearningCatalogNodeKind,
+    parentId?: string,
+  ): Promise<ReadonlyArray<LearningCatalogNodeModel>> {
+    const collectionSnapshot = await firestoreModule.getDocs(
+      firestoreModule.collection(firestore, collectionName),
+    );
+
+    return sortLearningCatalogNodes(
+      collectionSnapshot.docs
+        .map((documentSnapshot) =>
+          resolveLearningCatalogNode(kind, documentSnapshot.id, documentSnapshot.data()),
+        )
+        .filter((node) => isPublishedLearningCatalogNode(node))
+        .filter((node) => (parentId ? node.parentId === parentId : true)),
+    );
   }
 
   private async readCatalogDocument(
@@ -116,7 +168,7 @@ export class FirebaseLearnBootstrapRepository {
     collectionName: 'catalog_learning_worlds' | 'catalog_learning_chapters' | 'catalog_learning_units',
     documentId: string | null,
     kind: LearningCatalogNodeKind,
-  ) {
+  ): Promise<LearningCatalogNodeModel | null> {
     if (!documentId) {
       return null;
     }
@@ -130,6 +182,17 @@ export class FirebaseLearnBootstrapRepository {
       documentId,
       documentSnapshot.exists() ? documentSnapshot.data() : null,
     );
+  }
+
+  private resolveSelectedCatalogNode(
+    nodes: ReadonlyArray<LearningCatalogNodeModel>,
+    fallbackNode: LearningCatalogNodeModel | null,
+  ): LearningCatalogNodeModel | null {
+    if (!fallbackNode) {
+      return null;
+    }
+
+    return nodes.find((node) => node.id === fallbackNode.id) ?? fallbackNode;
   }
 
   private async initialize(): Promise<void> {
