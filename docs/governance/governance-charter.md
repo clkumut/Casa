@@ -13,6 +13,8 @@ Bu charter, Casa V1 icin dokumantasyon, delivery ve mimari karar akisinin baglay
 5. Model, DTO ve interface tanimlari ayri dosyalarda tutulur.
 6. Trusted mutasyonlar istemciden dogrudan yazilmaz; Cloud Functions araciligiyla isletilir.
 7. Her work package, yazili emir, karar, kanit ve onay zinciriyle kapanir.
+8. Aktif execution sirasinda onayli ORD, work package ve execution plan sirasindan sapilmaz; blocker veya zorunlu onay yoksa alternatif yol listesi sunulmaz.
+9. Chat iletisiminde varsayilan kip kisa, delta-bazli ve durum odaklidir; uzun aciklama yalniz kullanici isterse veya risk/escalation gerekiyorsa verilir.
 
 ## ORD / DEC / EVD / APR Modeli
 
@@ -81,3 +83,5 @@ Asagidaki durumlar governance ihlali sayilir:
 - `shared` klasoru acmak
 - V1 kapsaminda olmayan ozelligi V2 backlog yerine delivery planina eklemek
 - Evidence ve approval olmadan gate kapatmak
+- Onayli execution sirasi varken blocker olmadan alternatifli yonlendirme uretmek
+- Kullanici acikca kisa durum iletisimini istemisken chat ekraninda tekrarlı ve gereksiz ayrinti biriktirmek

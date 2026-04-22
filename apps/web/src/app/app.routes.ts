@@ -5,6 +5,9 @@ import { guestOnlyGuard } from '../core/guards/guest-only.guard';
 import { onboardingCompleteGuard } from '../core/guards/onboarding-complete.guard';
 import { onboardingProgressGuard } from '../core/guards/onboarding-progress.guard';
 import { opsRoleGuard } from '../core/guards/ops-role.guard';
+import { AuthLoginPageComponent } from '../features/auth/presentation/pages/auth-login-page.component';
+import { AuthOnboardingWelcomePageComponent } from '../features/auth/presentation/pages/auth-onboarding-welcome-page.component';
+import { AuthRegisterPageComponent } from '../features/auth/presentation/pages/auth-register-page.component';
 import { AppShellComponent } from './shells/app-shell.component';
 import { AuthOnboardingShellComponent } from './shells/auth-onboarding-shell.component';
 import { OpsShellComponent } from './shells/ops-shell.component';
@@ -47,22 +50,16 @@ export const routes: Routes = [
         pathMatch: 'full',
         redirectTo: 'login',
       },
-      createPlaceholderRoute(
-        'login',
-        'Giris',
-        'Guest-only akisi icin kullanilacak giris sayfasinin shell placeholder surumu.',
-        {
-          canActivate: [guestOnlyGuard],
-        },
-      ),
-      createPlaceholderRoute(
-        'register',
-        'Kayit',
-        'Yeni kullanici kaydi ve ilk adim yonlendirmeleri icin placeholder sayfa.',
-        {
-          canActivate: [guestOnlyGuard],
-        },
-      ),
+      {
+        path: 'login',
+        component: AuthLoginPageComponent,
+        canActivate: [guestOnlyGuard],
+      },
+      {
+        path: 'register',
+        component: AuthRegisterPageComponent,
+        canActivate: [guestOnlyGuard],
+      },
       {
         path: 'onboarding',
         children: [
@@ -71,11 +68,10 @@ export const routes: Routes = [
             pathMatch: 'full',
             redirectTo: 'welcome',
           },
-          createPlaceholderRoute(
-            'welcome',
-            'Onboarding Hos Geldin',
-            'Onboarding ilerleme akisinin welcome adimi icin shell placeholder sayfa.',
-          ),
+          {
+            path: 'welcome',
+            component: AuthOnboardingWelcomePageComponent,
+          },
         ],
         canActivate: [authGuard, onboardingProgressGuard],
       },

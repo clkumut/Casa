@@ -63,3 +63,8 @@ V1 kullanicisinin sisteme giris, kayit, ilk profil olusturma ve rol-temelli onbo
 
 - ORD-003 acildi ve resmi execution baglami tanimlandi.
 - Ilk uygulama slice'i olarak auth session state ve route guard ailesi uygulama cekirdegine baglaniyor.
+- Firebase runtime config tokeni ve auth session hidrasyonu browser bootstrap zincirine baglandi.
+- Login, register ve onboarding welcome route'lari feature-owned sayfalara tasindi; Firebase Auth tabanli executable aksiyonlar eklendi.
+- `users/{uid}` snapshot'indaki `onboardingCompletedAt` alani auth session'a baglandi; guard kararları artik user snapshot verisi cozulmeden alinmiyor.
+- Firebase istemcisi dinamik yuklemeye alinarak web ilk bundle boyutu yeniden budget altina indirildi.
+- Siradaki teknik slice, onboarding step draft verisini ve `catalog_onboarding_options` okumalarini feature akisina baglamaktir.

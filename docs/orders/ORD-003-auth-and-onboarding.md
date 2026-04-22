@@ -30,8 +30,11 @@ Casa V1 kullanicisinin login, register ve onboarding akislarini resmi delivery s
 ## Mevcut Durum
 
 - G3 build-ready gate'i kapandi ve WP-002 tamamlandi.
-- Angular shell/router scaffold'i mevcut; auth route'lari placeholder seviyesinde acik durumda.
-- Auth session state ve route guard ailesi henuz uygulama cekirdegine baglanmadi.
+- Angular shell/router scaffold'i artik auth feature sayfalari ile bagli ve placeholder seviyesinden cikti.
+- Auth session state, runtime config ve route guard ailesi uygulama cekirdegine baglandi.
+- Firebase Auth ile login/register/sign-out aksiyonlari browser istemcisinde calisir durumda.
+- `users/{uid}` snapshot'indaki onboarding durumu auth session'a baglandi ve authenticated route kararları snapshot cozulmesini bekliyor.
+- Firebase SDK dinamik yukleme ile initial bundle budget tekrar uyumlu hale getirildi; siradaki slice onboarding draft ve catalog read modeli olacak.
 
 ## Beklenen Ciktilar
 
@@ -53,3 +56,4 @@ Casa V1 kullanicisinin login, register ve onboarding akislarini resmi delivery s
 
 - Bu emir, G3 sonrasi ilk feature execution slice'ini resmi delivery takibine alir.
 - Auth ve onboarding implementasyonu trusted write ve rule kararlarina bagli kalacaktir.
+- Chat iletisimi ve execution disiplini, governance charter ve DEC-003 guncellemeleriyle sirali ve kisa durum akisi olarak sabitlendi.

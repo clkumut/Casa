@@ -1,18 +1,16 @@
-import { inject } from '@angular/core';
-import { Router, type CanActivateFn } from '@angular/router';
+import type { CanActivateFn } from '@angular/router';
 
-import { AuthSessionStore } from '../state/auth-session.store';
 import { AUTH_ROUTE_REDIRECTS } from './route-redirects';
+import { withHydratedAuthSession } from './hydrated-auth-session.guard-helper';
 
 export const guestOnlyGuard: CanActivateFn = () => {
-  const authSessionStore = inject(AuthSessionStore);
-  const router = inject(Router);
+  return withHydratedAuthSession((session, router) => {
+    if (session.status !== 'authenticated') {
+      return true;
+    }
 
-  if (!authSessionStore.isAuthenticated()) {
-    return true;
-  }
-
-  return authSessionStore.isOnboardingComplete()
-    ? router.createUrlTree([AUTH_ROUTE_REDIRECTS.appHome])
-    : router.createUrlTree([AUTH_ROUTE_REDIRECTS.onboarding]);
+    return session.onboardingStatus === 'complete'
+      ? router.createUrlTree([AUTH_ROUTE_REDIRECTS.appHome])
+      : router.createUrlTree([AUTH_ROUTE_REDIRECTS.onboarding]);
+  });
 };

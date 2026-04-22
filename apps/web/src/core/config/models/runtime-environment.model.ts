@@ -1,0 +1,1 @@
+export type RuntimeEnvironment = 'local' | 'dev' | 'staging' | 'prod';

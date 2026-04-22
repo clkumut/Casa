@@ -19,6 +19,8 @@ Proje sadece backlog listeleriyle yurutulurse kapanis kriterleri bulanık kalir.
 - Her gate ve release kapanisi EVD kaydiyla desteklenir.
 - G0-G5 gate modeli delivery omurgasi olarak benimsenir.
 - APR kaydi olmadan hicbir gate resmen kapanmis sayilmaz.
+- Fiili execution, ilgili work package ve execution plan sirasina bagli yurutulur; blocker veya zorunlu sign-off yoksa yeni karar secenekleriyle akistan sapilmaz.
+- Iletisim varsayilan olarak kisa ve durum odakli tutulur; delivery'nin birincil gostergesi chat aciklamasi degil, repo icindeki degisiklik ve dokuman guncellemeleridir.
 
 ## Sonuclar
 
