@@ -4,6 +4,7 @@ import type { Firestore } from 'firebase/firestore';
 import type { Functions } from 'firebase/functions';
 
 import { CASA_RUNTIME_CONFIG } from '../../../core/config/casa-runtime-config.token';
+import { connectFirestoreEmulatorOnce } from '../../../core/config/firebase-emulator-connect';
 import type { OnboardingStepId } from '../../../core/auth/models/onboarding-step.model';
 import type { FinalizeOnboardingResponseModel } from '../models/finalize-onboarding-response.model';
 
@@ -105,7 +106,7 @@ export class FirebaseOnboardingCommandRepository {
       return;
     }
 
-    firestoreModule.connectFirestoreEmulator(firestore, '127.0.0.1', 8080);
+    connectFirestoreEmulatorOnce(firestoreModule, firestore);
     this.firestoreEmulatorConnected = true;
   }
 

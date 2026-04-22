@@ -11,6 +11,7 @@
     "build": "npm run build:web && npm run build:functions",
     "build:web": "npm run build --workspace apps/web",
     "build:functions": "npm run build --workspace apps/functions",
+    "smoke:wp-005:route": "npm run build:web && npx firebase-tools emulators:exec --only auth,firestore --config ./firebase/firebase.json --project demo-casa-local \"node ./operations/smoke-tests/dev/trusted-learning-route-sanity-smoke.mjs\"",
     "serve:web": "npm run serve --workspace apps/web",
     "typecheck:web": "npm run typecheck --workspace apps/web",
     "typecheck:functions": "npm run typecheck --workspace apps/functions",

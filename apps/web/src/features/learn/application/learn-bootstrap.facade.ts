@@ -50,12 +50,10 @@ export class LearnBootstrapFacade {
           return;
         }
 
-        this.learnBootstrapState.set({
-          catalog: this.learnBootstrapState().catalog,
-          catalogMap: this.learnBootstrapState().catalogMap,
-          progression: this.learnBootstrapState().progression,
+        this.learnBootstrapState.update((currentState) => ({
+          ...currentState,
           status: 'loading',
-        });
+        }));
 
         let isActive = true;
         let unsubscribe: (() => void) | null = null;

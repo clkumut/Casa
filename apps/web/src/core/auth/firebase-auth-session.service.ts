@@ -4,6 +4,7 @@ import type { Auth, User } from 'firebase/auth';
 import type { Firestore, Unsubscribe } from 'firebase/firestore';
 
 import { CASA_RUNTIME_CONFIG } from '../config/casa-runtime-config.token';
+import { connectAuthEmulatorOnce, connectFirestoreEmulatorOnce } from '../config/firebase-emulator-connect';
 import { AuthSessionStore } from '../state/auth-session.store';
 import { resolveCasaRoles } from './auth-claims.util';
 import {
@@ -99,10 +100,7 @@ export class FirebaseAuthSessionService {
       return;
     }
 
-    authModule.connectAuthEmulator(auth, 'http://127.0.0.1:9099', {
-      disableWarnings: true,
-    });
-
+    connectAuthEmulatorOnce(authModule, auth);
     this.emulatorConnected = true;
   }
 
@@ -114,7 +112,7 @@ export class FirebaseAuthSessionService {
       return;
     }
 
-    firestoreModule.connectFirestoreEmulator(firestore, '127.0.0.1', 8080);
+    connectFirestoreEmulatorOnce(firestoreModule, firestore);
     this.firestoreEmulatorConnected = true;
   }
 
@@ -157,11 +155,27 @@ export class FirebaseAuthSessionService {
 
   private startUserProfileSync(uid: string): void {
     const { firestore, firestoreModule } = this.getReadyFirestoreClients();
+    const userDocumentReference = firestoreModule.doc(firestore, 'users', uid);
 
     this.stopUserProfileSync();
 
+    void firestoreModule
+      .getDoc(userDocumentReference)
+      .then((snapshot) => {
+        const userProfile = snapshot.data() as UserProfileSnapshotModel | undefined;
+
+        this.authSessionStore.updateAuthenticatedOnboardingProgress(
+          resolveOnboardingProgressFromUserProfile(userProfile),
+        );
+      })
+      .catch(() => {
+        this.authSessionStore.updateAuthenticatedOnboardingProgress(
+          resolveOnboardingProgressFromUserProfile(undefined),
+        );
+      });
+
     this.userProfileUnsubscribe = firestoreModule.onSnapshot(
-      firestoreModule.doc(firestore, 'users', uid),
+      userDocumentReference,
       (snapshot) => {
         const userProfile = snapshot.data() as UserProfileSnapshotModel | undefined;
 

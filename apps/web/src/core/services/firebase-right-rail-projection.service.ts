@@ -4,6 +4,7 @@ import type { Firestore, Unsubscribe } from 'firebase/firestore';
 
 import { AuthSessionStore } from '../state/auth-session.store';
 import { CASA_RUNTIME_CONFIG } from '../config/casa-runtime-config.token';
+import { connectFirestoreEmulatorOnce } from '../config/firebase-emulator-connect';
 import { RightRailStore } from '../state/right-rail.store';
 import { resolveRightRailSnapshot } from '../state/models/right-rail-snapshot.model';
 
@@ -69,7 +70,6 @@ export class FirebaseRightRailProjectionService {
 
   public async initialize(): Promise<void> {
     await this.initializeFirestore();
-    await this.readyPromise;
   }
 
   private async connectSnapshot(uid: string): Promise<Unsubscribe> {
@@ -124,7 +124,7 @@ export class FirebaseRightRailProjectionService {
       return;
     }
 
-    firestoreModule.connectFirestoreEmulator(firestore, '127.0.0.1', 8080);
+    connectFirestoreEmulatorOnce(firestoreModule, firestore);
     this.firestoreEmulatorConnected = true;
   }
 
