@@ -109,6 +109,11 @@ service cloud.firestore {
       allow create: if isOwner(userId) && isAllowedUserDraftCreate(userId);
       allow update: if isOwner(userId) && isAllowedUserDraftUpdate();
       allow delete: if false;
+
+      match /rightRailSnapshots/{snapshotId} {
+        allow read: if isOwner(userId);
+        allow write: if false;
+      }
     }
 
     match /{document=**} {

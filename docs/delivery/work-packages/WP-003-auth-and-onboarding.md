@@ -70,4 +70,8 @@ V1 kullanicisinin sisteme giris, kayit, ilk profil olusturma ve rol-temelli onbo
 - Onboarding feature'i icinde repository + facade tabanli read model kuruldu; kullanici draft verisi ve `catalog_onboarding_options` ayni feature akisina baglandi.
 - `/auth/onboarding/goal`, `/auth/onboarding/level`, `/auth/onboarding/habit` ve `/auth/onboarding/path` route'lari acildi; sayfalar mevcut draft secimini ve catalog seceneklerini gosteriyor.
 - Firestore rules onboarding catalog read, self user snapshot read ve sinirli onboarding draft self-write cizgisine cekildi; onboarding read modeli artik deny-all baseline tarafindan bloke edilmiyor.
-- Siradaki teknik slice, onboarding step save/finalize komutlari ile progress guard'in eksik step'i dogru route'a yonlendirmesidir.
+- Onboarding step secimleri self-write cizgisiyle kullanici belgesine kaydediliyor; feature summary ekraninda trusted `finalizeOnboarding` callable'i acildi.
+- Progress guard, `users/{uid}` snapshot'ina gore eksik onboarding step'ine dogrudan yonleniyor; tum step secimleri dolu ama tamamlanmamis durumda welcome summary canonical route olarak korunuyor.
+- AppShell right rail placeholder'i `users/{uid}/rightRailSnapshots/default` projection'ina baglandi; app readiness resolver ilk projection yukunu bekliyor ve shell mock veri gostermiyor.
+- `SMK-WP-003-001` smoke kaydi ile trusted `finalizeOnboarding` callable'i emulator uzerinde ilk ve ikinci cagrilarla dogrulandi.
+- Siradaki teknik slice, `/app/learn` icin ilk merkez-stage projection baglantisi ve onboarding sonrasi learn bootstrap read modelidir.

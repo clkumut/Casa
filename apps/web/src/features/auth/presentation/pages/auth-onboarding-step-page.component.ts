@@ -1,6 +1,6 @@
 import { NgFor, NgIf } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 
 import { OnboardingReadFacade } from '../../application/onboarding-read.facade';
 import type { AuthPageContentModel } from '../../models/auth-page-content.model';
@@ -26,8 +26,8 @@ const ONBOARDING_STEP_VIEW: Readonly<Record<OnboardingStepId, OnboardingStepView
     description: 'Goal catalog okumasi ile kullanicinin mevcut draft hedefi ayni ekranda gorunur.',
     checkpoints: [
       'Catalog okunur ve hedef secenekleri feature icinde render edilir.',
+      'Secilen hedef self-write siniri icinde kullanici belgesine kaydedilir.',
       'Mevcut draft secimi user snapshot alanindan gorulur.',
-      'Write/finalize komutu bu slice sonrasinda baglanir.',
     ],
     previousHref: '/auth/onboarding/welcome',
     nextHref: '/auth/onboarding/level',
@@ -49,7 +49,7 @@ const ONBOARDING_STEP_VIEW: Readonly<Record<OnboardingStepId, OnboardingStepView
     checkpoints: [
       'Habit secenekleri catalog koleksiyonundan okunur.',
       'Mevcut draft ritmi secili kart ile ayristirilir.',
-      'Trusted save siniri sonraki slice icin korunur.',
+      'Self-write kaydi sonraki adima gecis oncesi uygulanir.',
     ],
     previousHref: '/auth/onboarding/level',
     nextHref: '/auth/onboarding/path',
@@ -60,7 +60,7 @@ const ONBOARDING_STEP_VIEW: Readonly<Record<OnboardingStepId, OnboardingStepView
     checkpoints: [
       'Path secenekleri catalog uzerinden gelir.',
       'User snapshot icindeki path draft degeri secili olarak gorulur.',
-      'Finalize baglantisi sonraki application slice icin acik tutulur.',
+      'Tum secimler tamamlandiginda summary ekraninda finalize acilir.',
     ],
     previousHref: '/auth/onboarding/habit',
     nextHref: '/auth/onboarding/welcome',
@@ -91,8 +91,16 @@ const ONBOARDING_STEP_VIEW: Readonly<Record<OnboardingStepId, OnboardingStepView
         Onboarding catalog ve kullanici draft snapshot'i yukleniyor.
       </p>
 
+      <p class="step-note" *ngIf="activeSaveStep() === step">
+        Secim kaydediliyor ve sonraki onboarding adimina gecis hazirlaniyor.
+      </p>
+
       <p class="step-note step-note-error" *ngIf="readStatus() === 'error'">
         Read model su an cozulmedi. Firestore baglantisi ve emulator durumunu dogrulayin.
+      </p>
+
+      <p class="step-note step-note-error" *ngIf="commandError() as commandError">
+        {{ commandError }}
       </p>
 
       <section class="step-option-grid" *ngIf="options().length > 0; else emptyOptionsState">
@@ -107,6 +115,14 @@ const ONBOARDING_STEP_VIEW: Readonly<Record<OnboardingStepId, OnboardingStepView
           <span class="step-option-state">
             {{ option.code === selectedCode() ? 'Mevcut draft secimi' : 'Catalog secenegi' }}
           </span>
+          <button
+            type="button"
+            class="step-option-action"
+            [disabled]="readStatus() !== 'ready' || activeSaveStep() === step"
+            (click)="selectOption(option)"
+          >
+            {{ option.code === selectedCode() ? 'Secimi tekrar kaydet' : 'Bu secenegi kaydet' }}
+          </button>
         </article>
       </section>
 
@@ -168,6 +184,22 @@ const ONBOARDING_STEP_VIEW: Readonly<Record<OnboardingStepId, OnboardingStepView
         box-shadow: 0 0 0 1px rgba(15, 107, 129, 0.12);
       }
 
+      .step-option-action {
+        background: transparent;
+        border: 1px solid var(--casa-border);
+        border-radius: 999px;
+        color: var(--casa-ink);
+        cursor: pointer;
+        font-weight: 700;
+        min-height: 2.85rem;
+        padding: 0 1rem;
+      }
+
+      .step-option-action:disabled {
+        cursor: wait;
+        opacity: 0.6;
+      }
+
       .step-option-card h3,
       .step-empty-state h3 {
         margin: 0;
@@ -185,8 +217,11 @@ const ONBOARDING_STEP_VIEW: Readonly<Record<OnboardingStepId, OnboardingStepView
 })
 export class AuthOnboardingStepPageComponent {
   private readonly activatedRoute = inject(ActivatedRoute);
+  private readonly router = inject(Router);
   private readonly onboardingReadFacade = inject(OnboardingReadFacade);
 
+  protected readonly activeSaveStep = this.onboardingReadFacade.activeSaveStep;
+  protected readonly commandError = this.onboardingReadFacade.commandError;
   protected readonly step = this.activatedRoute.snapshot.data['step'] as OnboardingStepId;
   protected readonly stepLabel = ONBOARDING_STEP_LABELS[this.step];
   protected readonly readStatus = this.onboardingReadFacade.status;
@@ -200,6 +235,15 @@ export class AuthOnboardingStepPageComponent {
     return option?.title ?? 'Henuz secim yok';
   });
   protected readonly content: AuthPageContentModel = this.createPageContent();
+
+  protected async selectOption(option: OnboardingOptionModel): Promise<void> {
+    try {
+      await this.onboardingReadFacade.saveSelection(this.step, option.code);
+      await this.router.navigateByUrl(ONBOARDING_STEP_VIEW[this.step].nextHref);
+    } catch {
+      // Command error state is already surfaced by the facade.
+    }
+  }
 
   private createPageContent(): AuthPageContentModel {
     const view = ONBOARDING_STEP_VIEW[this.step];

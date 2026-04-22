@@ -1,11 +1,13 @@
-import { NgFor } from '@angular/common';
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { NgFor, NgIf } from '@angular/common';
+import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+
+import { RightRailStore } from '../../core/state/right-rail.store';
 
 @Component({
   selector: 'casa-app-shell',
   standalone: true,
-  imports: [NgFor, RouterLink, RouterLinkActive, RouterOutlet],
+  imports: [NgFor, NgIf, RouterLink, RouterLinkActive, RouterOutlet],
   template: `
     <div class="app-shell">
       <aside class="left-rail page-panel">
@@ -43,11 +45,19 @@ import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
         </div>
 
         <section class="metrics-grid" aria-label="Placeholder metrics">
-          <article *ngFor="let metric of metrics" class="metric-card">
+          <article *ngFor="let metric of metrics()" class="metric-card">
             <span>{{ metric.label }}</span>
             <strong>{{ metric.value }}</strong>
           </article>
         </section>
+
+        <p class="muted-text" *ngIf="rightRailStatus() === 'loading'">
+          Right rail projection baglaniyor.
+        </p>
+
+        <p class="muted-text" *ngIf="rightRailStatus() === 'error'">
+          Right rail projection su an okunamiyor.
+        </p>
       </aside>
     </div>
   `,
@@ -119,6 +129,8 @@ import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AppShellComponent {
+  private readonly rightRailStore = inject(RightRailStore);
+
   public readonly navigationItems: ReadonlyArray<Readonly<{ href: string; label: string }>> = [
     { href: '/app/learn', label: 'Ogren' },
     { href: '/app/elifba', label: 'Elifba' },
@@ -130,10 +142,36 @@ export class AppShellComponent {
     { href: '/app/more/settings', label: 'Ayarlar' },
   ];
 
-  public readonly metrics: ReadonlyArray<Readonly<{ label: string; value: string }>> = [
-    { label: 'XP', value: '1,280' },
-    { label: 'Streak', value: '14 gun' },
-    { label: 'Gems', value: '245' },
-    { label: 'Hearts', value: '5 / 5' },
-  ];
+  public readonly rightRailStatus = this.rightRailStore.status;
+  public readonly metrics = computed(() => {
+    const snapshot = this.rightRailStore.snapshot();
+    const isReady = this.rightRailStatus() === 'ready';
+
+    return [
+      {
+        label: 'XP',
+        value: isReady && snapshot.lifetimeXp !== null ? `${snapshot.lifetimeXp}` : '...',
+      },
+      {
+        label: 'Streak',
+        value:
+          isReady && snapshot.activeStreakDays !== null
+            ? `${snapshot.activeStreakDays} gun`
+            : '...',
+      },
+      {
+        label: 'Gems',
+        value: isReady && snapshot.currentGems !== null ? `${snapshot.currentGems}` : '...',
+      },
+      {
+        label: 'Hearts',
+        value:
+          isReady && snapshot.currentHearts !== null
+            ? snapshot.heartsCapacity !== null
+              ? `${snapshot.currentHearts} / ${snapshot.heartsCapacity}`
+              : `${snapshot.currentHearts}`
+            : '...',
+      },
+    ] as const;
+  });
 }

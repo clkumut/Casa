@@ -37,7 +37,11 @@ Casa V1 kullanicisinin login, register ve onboarding akislarini resmi delivery s
 - Firebase SDK dinamik yukleme ile initial bundle budget tekrar uyumlu hale getirildi.
 - Onboarding feature read modeli, kullanici draft belgesi ile `catalog_onboarding_options` okumalarini facade uzerinden birlestiriyor ve step route'lari artik bu veriyle render oluyor.
 - Firestore rules, onboarding catalog read ve self user snapshot read'i aciyor; sinirli draft self-write alanlari gelecekteki save slice'i icin hazirlandi.
-- Siradaki slice onboarding save/finalize komutlarini ve progress guard icin dogru eksik-step yonlendirmesini acacak.
+- Onboarding step save akisi self-write ile acildi, `finalizeOnboarding` callable'i functions tarafinda export edildi ve emulator yuklemesinde dogrulandi.
+- Progress guard eksik onboarding step'ini dogrudan hedefliyor; tamamlanmamis ama tum secimleri dolu kullanici welcome summary uzerinden finalize ediliyor.
+- AppShell right rail projection baglantisi acildi; `users/{uid}/rightRailSnapshots/default` sahibi tarafindan okunuyor ve shell bootstrap'i resolver ile ilk projection yukunu bekliyor.
+- `SMK-WP-003-001` smoke testi `finalizeOnboarding` callable'inin `completed` ve `already-complete` durumlarini emulator ortaminda dogruladi.
+- Siradaki slice onboarding sonrasi `/app/learn` merkez-stage read modelinin acilmasidir.
 
 ## Beklenen Ciktilar
 

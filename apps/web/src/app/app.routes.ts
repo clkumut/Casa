@@ -1,6 +1,7 @@
 import type { Route, Routes } from '@angular/router';
 
 import { authGuard } from '../core/guards/auth.guard';
+import { appReadinessResolver } from '../core/guards/app-readiness.resolver';
 import { guestOnlyGuard } from '../core/guards/guest-only.guard';
 import { onboardingCompleteGuard } from '../core/guards/onboarding-complete.guard';
 import { onboardingProgressGuard } from '../core/guards/onboarding-progress.guard';
@@ -95,6 +96,9 @@ export const routes: Routes = [
     path: 'app',
     component: AppShellComponent,
     canActivate: [authGuard, onboardingCompleteGuard],
+    resolve: {
+      appReady: appReadinessResolver,
+    },
     children: [
       {
         path: '',

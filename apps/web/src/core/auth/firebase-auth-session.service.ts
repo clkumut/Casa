@@ -6,7 +6,10 @@ import type { Firestore, Unsubscribe } from 'firebase/firestore';
 import { CASA_RUNTIME_CONFIG } from '../config/casa-runtime-config.token';
 import { AuthSessionStore } from '../state/auth-session.store';
 import { resolveCasaRoles } from './auth-claims.util';
-import { resolveOnboardingStatusFromUserProfile, type UserProfileSnapshotModel } from './models/user-profile-snapshot.model';
+import {
+  resolveOnboardingProgressFromUserProfile,
+  type UserProfileSnapshotModel,
+} from './models/user-profile-snapshot.model';
 
 /** Initialize browser Firebase Auth and hydrate the global auth session store. */
 @Injectable({ providedIn: 'root' })
@@ -139,6 +142,7 @@ export class FirebaseAuthSessionService {
 
       this.authSessionStore.setAuthenticatedSession({
         email: user.email,
+        nextOnboardingStep: null,
         onboardingStatus: 'loading',
         roles,
         uid: user.uid,
@@ -161,12 +165,14 @@ export class FirebaseAuthSessionService {
       (snapshot) => {
         const userProfile = snapshot.data() as UserProfileSnapshotModel | undefined;
 
-        this.authSessionStore.updateAuthenticatedOnboardingStatus(
-          resolveOnboardingStatusFromUserProfile(userProfile),
+        this.authSessionStore.updateAuthenticatedOnboardingProgress(
+          resolveOnboardingProgressFromUserProfile(userProfile),
         );
       },
       () => {
-        this.authSessionStore.updateAuthenticatedOnboardingStatus('required');
+        this.authSessionStore.updateAuthenticatedOnboardingProgress(
+          resolveOnboardingProgressFromUserProfile(undefined),
+        );
       },
     );
   }

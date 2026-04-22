@@ -1,0 +1,1 @@
+export type FinalizeOnboardingRequestModel = Record<string, never>;

@@ -1,6 +1,6 @@
 import { NgFor, NgIf } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 
 import { FirebaseAuthSessionService } from '../../../../core/auth/firebase-auth-session.service';
 import { AuthSessionStore } from '../../../../core/state/auth-session.store';
@@ -77,7 +77,22 @@ const ONBOARDING_WELCOME_PAGE_CONTENT: AuthPageContentModel = {
         Onboarding read modeli su an cozulmedi; Firestore baglantisini dogrulayin.
       </p>
 
+      <p class="welcome-note" *ngIf="!canFinalize() && onboardingReadStatus() === 'ready'">
+        Finalize adimi, tum onboarding secimleri draft belgede doldugunda acilacak.
+      </p>
+
+      <p class="welcome-note welcome-note-error" *ngIf="commandError() as commandError">
+        {{ commandError }}
+      </p>
+
       <div class="welcome-actions">
+        <button
+          type="button"
+          [disabled]="!canFinalize() || isFinalizing()"
+          (click)="finalizeOnboarding()"
+        >
+          {{ finalizeButtonLabel() }}
+        </button>
         <button type="button" (click)="signOut()">Oturumu kapat</button>
         <a routerLink="/auth/onboarding/goal">Goal adimina gec</a>
       </div>
@@ -141,6 +156,10 @@ const ONBOARDING_WELCOME_PAGE_CONTENT: AuthPageContentModel = {
         margin: 0;
       }
 
+      .welcome-note-error {
+        color: #a33d2d;
+      }
+
       .welcome-actions {
         align-items: center;
         display: flex;
@@ -159,6 +178,11 @@ const ONBOARDING_WELCOME_PAGE_CONTENT: AuthPageContentModel = {
         padding: 0 1.25rem;
       }
 
+      .welcome-actions button:disabled {
+        cursor: wait;
+        opacity: 0.6;
+      }
+
       @media (max-width: 720px) {
         .welcome-summary,
         .welcome-draft-grid {
@@ -173,14 +197,21 @@ export class AuthOnboardingWelcomePageComponent {
   private readonly firebaseAuthSessionService = inject(FirebaseAuthSessionService);
   private readonly authSessionStore = inject(AuthSessionStore);
   private readonly onboardingReadFacade = inject(OnboardingReadFacade);
+  private readonly router = inject(Router);
 
+  protected readonly canFinalize = this.onboardingReadFacade.canFinalize;
+  protected readonly commandError = this.onboardingReadFacade.commandError;
   protected readonly content = ONBOARDING_WELCOME_PAGE_CONTENT;
+  protected readonly finalizeButtonLabel = computed(() =>
+    this.isFinalizing() ? 'Onboarding tamamlanıyor' : 'Onboardingi tamamla',
+  );
+  protected readonly isFinalizing = this.onboardingReadFacade.isFinalizing;
   protected readonly session = this.authSessionStore.session;
   protected readonly onboardingReadStatus = this.onboardingReadFacade.status;
   protected readonly checklist = [
-    'Onboarding save komutlari ve self-write siniri',
-    'Onboarding ilerleme yazimlari icin trusted write siniri',
-    'Progress guard icin dogru step yonlendirmesi',
+    'Finalize callable yanitinin smoke test ile dogrulanmasi',
+    'Onboarding sonrasi ilk app bootstrap projection baglantisi',
+    'Display name ve visibility gibi kalan self-service alanlarin baglanmasi',
   ];
   protected readonly draftSummary = computed(() => {
     const onboardingDraft = this.onboardingReadFacade.draft();
@@ -196,6 +227,15 @@ export class AuthOnboardingWelcomePageComponent {
       };
     });
   });
+
+  protected async finalizeOnboarding(): Promise<void> {
+    try {
+      await this.onboardingReadFacade.finalizeOnboarding();
+      await this.router.navigateByUrl('/app/learn');
+    } catch {
+      // Command error state is already surfaced by the facade.
+    }
+  }
 
   protected async signOut(): Promise<void> {
     await this.firebaseAuthSessionService.signOut();

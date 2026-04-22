@@ -3,8 +3,8 @@ import { computed, Injectable, signal } from '@angular/core';
 import {
   INITIAL_AUTH_SESSION,
   type AuthSessionModel,
-  type OnboardingStatus,
 } from '../auth/models/auth-session.model';
+import type { ResolvedOnboardingProgressModel } from '../auth/models/user-profile-snapshot.model';
 import { OPS_ROLES } from '../auth/models/auth-role.model';
 
 @Injectable({ providedIn: 'root' })
@@ -37,7 +37,9 @@ export class AuthSessionStore {
     });
   }
 
-  public updateAuthenticatedOnboardingStatus(onboardingStatus: OnboardingStatus): void {
+  public updateAuthenticatedOnboardingProgress(
+    onboardingProgress: ResolvedOnboardingProgressModel,
+  ): void {
     const currentSession = this.authSessionState();
 
     if (currentSession.status !== 'authenticated') {
@@ -46,7 +48,8 @@ export class AuthSessionStore {
 
     this.authSessionState.set({
       ...currentSession,
-      onboardingStatus,
+      nextOnboardingStep: onboardingProgress.nextOnboardingStep,
+      onboardingStatus: onboardingProgress.onboardingStatus,
     });
   }
 }

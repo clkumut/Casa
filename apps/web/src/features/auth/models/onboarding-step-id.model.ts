@@ -1,15 +1,6 @@
-export type OnboardingStepId = 'goal' | 'level' | 'habit' | 'path';
-
-export const ONBOARDING_STEP_SEQUENCE: ReadonlyArray<OnboardingStepId> = [
-  'goal',
-  'level',
-  'habit',
-  'path',
-];
-
-export const ONBOARDING_STEP_LABELS: Readonly<Record<OnboardingStepId, string>> = {
-  goal: 'Hedef',
-  level: 'Seviye',
-  habit: 'Ritim',
-  path: 'Yol',
-};
+export {
+  ONBOARDING_STEP_LABELS,
+  ONBOARDING_STEP_SEQUENCE,
+  resolveOnboardingStepRoute,
+  type OnboardingStepId,
+} from '../../../core/auth/models/onboarding-step.model';
