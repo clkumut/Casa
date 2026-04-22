@@ -114,6 +114,11 @@ service cloud.firestore {
       allow write: if isOpsCatalogWriter();
     }
 
+    match /catalog_learning_lessons/{document=**} {
+      allow read: if true;
+      allow write: if isOpsCatalogWriter();
+    }
+
     match /catalog_onboarding_options/{document=**} {
       allow read: if true;
       allow write: if isOpsCatalogWriter();

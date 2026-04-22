@@ -1,6 +1,6 @@
 type FirestoreRecord = Record<string, unknown>;
 
-export type LearningCatalogNodeKind = 'world' | 'chapter' | 'unit';
+export type LearningCatalogNodeKind = 'world' | 'chapter' | 'unit' | 'lesson';
 
 export interface LearningCatalogNodeModel {
   readonly description: string | null;
@@ -15,24 +15,28 @@ export interface LearningCatalogNodeModel {
 
 export interface LearningCatalogMapModel {
   readonly chapters: ReadonlyArray<LearningCatalogNodeModel>;
+  readonly lessons: ReadonlyArray<LearningCatalogNodeModel>;
   readonly units: ReadonlyArray<LearningCatalogNodeModel>;
   readonly worlds: ReadonlyArray<LearningCatalogNodeModel>;
 }
 
 export interface LearningCatalogSelectionModel {
   readonly chapter: LearningCatalogNodeModel | null;
+  readonly lesson: LearningCatalogNodeModel | null;
   readonly unit: LearningCatalogNodeModel | null;
   readonly world: LearningCatalogNodeModel | null;
 }
 
 export const EMPTY_LEARNING_CATALOG_MAP: LearningCatalogMapModel = {
   chapters: [],
+  lessons: [],
   units: [],
   worlds: [],
 };
 
 export const EMPTY_LEARNING_CATALOG_SELECTION: LearningCatalogSelectionModel = {
   chapter: null,
+  lesson: null,
   unit: null,
   world: null,
 };
@@ -172,6 +176,10 @@ const resolveParentId = (
 
   if (kind === 'unit') {
     return readString(record, 'chapterId') ?? readString(record, 'chapterRef');
+  }
+
+  if (kind === 'lesson') {
+    return readString(record, 'unitId') ?? readString(record, 'unitRef');
   }
 
   return null;

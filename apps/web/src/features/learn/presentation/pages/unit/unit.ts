@@ -25,6 +25,11 @@ export class LearnUnitPageComponent {
   protected readonly progression = this.learnBootstrapFacade.progression;
   protected readonly status = this.learnBootstrapFacade.status;
   protected readonly unitId = computed(() => this.routeParamMap().get('unitId'));
+  protected readonly lessons = computed(() => {
+    const unitId = this.unitId();
+
+    return this.learnBootstrapFacade.catalogMap().lessons.filter((lesson) => lesson.parentId === unitId);
+  });
   protected readonly selectedUnit = computed(() => {
     const unitId = this.unitId();
 
@@ -55,6 +60,12 @@ export class LearnUnitPageComponent {
       .map((prerequisiteId) => lookup.get(prerequisiteId) ?? null)
       .filter((prerequisite): prerequisite is LearningCatalogNodeModel => prerequisite !== null);
   });
+  protected readonly startLesson = computed(() => {
+    const currentLessonId = this.progression()?.currentLessonId;
+    const lessons = this.lessons();
+
+    return lessons.find((lesson) => lesson.id === currentLessonId) ?? lessons[0] ?? null;
+  });
 
   protected backLink = computed(() => {
     const worldId = this.parentWorld()?.id;
@@ -70,8 +81,24 @@ export class LearnUnitPageComponent {
     return this.learnBootstrapFacade.progression()?.currentUnitId === this.unitId();
   }
 
+  protected isCurrentLesson(lessonId: string): boolean {
+    return this.progression()?.currentLessonId === lessonId;
+  }
+
+  protected isStartLesson(lessonId: string): boolean {
+    return this.startLesson()?.id === lessonId;
+  }
+
   protected resolveNodeSummary(node: LearningCatalogNodeModel): string {
     return node.description ?? this.resolveUnitMeta(node);
+  }
+
+  protected resolveLessonBoundaryHint(lesson: LearningCatalogNodeModel): string {
+    if (this.isCurrentLesson(lesson.id)) {
+      return 'Progression snapshot bu dersi aktif baslangic noktasi olarak isaretliyor.';
+    }
+
+    return 'Progression aktif lesson tanimlamadiginda ilk published lesson canonical baslangic noktasi olur.';
   }
 
   protected resolveUnitMeta(unit: LearningCatalogNodeModel): string {
@@ -79,6 +106,15 @@ export class LearnUnitPageComponent {
       unit.order !== null ? `order ${unit.order}` : null,
       unit.publishState,
       unit.prerequisiteIds.length > 0 ? `${unit.prerequisiteIds.length} onkosul` : 'Onkosul yok',
+    ].filter((value): value is string => value !== null);
+
+    return details.join(' · ');
+  }
+
+  protected resolveLessonMeta(lesson: LearningCatalogNodeModel): string {
+    const details = [
+      lesson.order !== null ? `order ${lesson.order}` : null,
+      lesson.publishState,
     ].filter((value): value is string => value !== null);
 
     return details.join(' · ');

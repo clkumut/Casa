@@ -16,8 +16,15 @@ import {
 import type { LearnBootstrapReadModel } from '../models/learn-bootstrap-read.model';
 import { resolveLearningProgression, type LearningProgressionModel } from '../models/learning-progression.model';
 
+type LearningCatalogCollectionName =
+  | 'catalog_learning_worlds'
+  | 'catalog_learning_chapters'
+  | 'catalog_learning_units'
+  | 'catalog_learning_lessons';
+
 @Injectable({ providedIn: 'root' })
 export class FirebaseLearnBootstrapRepository {
+  private static readonly IN_QUERY_BATCH_LIMIT = 30;
   private static readonly FIREBASE_MODULES = Promise.all([
     import('firebase/app'),
     import('firebase/firestore'),
@@ -84,7 +91,7 @@ export class FirebaseLearnBootstrapRepository {
     firestoreModule: Awaited<typeof FirebaseLearnBootstrapRepository.FIREBASE_MODULES>[1],
     progression: LearningProgressionModel | null,
   ): Promise<Pick<LearnBootstrapReadModel, 'catalog' | 'catalogMap'>> {
-    const [worlds, chapters, units, world, chapter, unit] = await Promise.all([
+    const [worlds, chapters, units, world, chapter, unit, lesson] = await Promise.all([
       this.readPublishedCatalogCollection(firestore, firestoreModule, 'catalog_learning_worlds', 'world'),
       progression?.currentWorldId
         ? this.readPublishedCatalogCollection(
@@ -125,16 +132,35 @@ export class FirebaseLearnBootstrapRepository {
         progression?.currentUnitId ?? null,
         'unit',
       ),
+      this.readCatalogDocument(
+        firestore,
+        firestoreModule,
+        'catalog_learning_lessons',
+        progression?.currentLessonId ?? null,
+        'lesson',
+      ),
     ]);
+    const lessons = units.length > 0
+      ? await this.readPublishedCatalogCollectionByParentIds(
+          firestore,
+          firestoreModule,
+          'catalog_learning_lessons',
+          'lesson',
+          units.map((currentUnit) => currentUnit.id),
+          ['unitId', 'unitRef'],
+        )
+      : EMPTY_LEARNING_CATALOG_MAP.lessons;
 
     return {
       catalog: {
         chapter: this.resolveSelectedCatalogNode(chapters, chapter),
+        lesson: this.resolveSelectedCatalogNode(lessons, lesson),
         unit: this.resolveSelectedCatalogNode(units, unit),
         world: this.resolveSelectedCatalogNode(worlds, world),
       },
       catalogMap: {
         chapters,
+        lessons,
         units,
         worlds,
       },
@@ -144,7 +170,7 @@ export class FirebaseLearnBootstrapRepository {
   private async readPublishedCatalogCollection(
     firestore: Firestore,
     firestoreModule: Awaited<typeof FirebaseLearnBootstrapRepository.FIREBASE_MODULES>[1],
-    collectionName: 'catalog_learning_worlds' | 'catalog_learning_chapters' | 'catalog_learning_units',
+    collectionName: LearningCatalogCollectionName,
     kind: LearningCatalogNodeKind,
     parentId?: string,
   ): Promise<ReadonlyArray<LearningCatalogNodeModel>> {
@@ -162,10 +188,58 @@ export class FirebaseLearnBootstrapRepository {
     );
   }
 
+  private async readPublishedCatalogCollectionByParentIds(
+    firestore: Firestore,
+    firestoreModule: Awaited<typeof FirebaseLearnBootstrapRepository.FIREBASE_MODULES>[1],
+    collectionName: LearningCatalogCollectionName,
+    kind: LearningCatalogNodeKind,
+    parentIds: ReadonlyArray<string>,
+    parentFields: ReadonlyArray<string>,
+  ): Promise<ReadonlyArray<LearningCatalogNodeModel>> {
+    const normalizedParentIds = [...new Set(parentIds.filter((parentId) => parentId.length > 0))];
+
+    if (normalizedParentIds.length === 0 || parentFields.length === 0) {
+      return [];
+    }
+
+    const parentIdLookup = new Set(normalizedParentIds);
+    const parentIdChunks = this.chunkValues(
+      normalizedParentIds,
+      FirebaseLearnBootstrapRepository.IN_QUERY_BATCH_LIMIT,
+    );
+    const snapshots = await Promise.all(
+      parentIdChunks.flatMap((parentIdChunk) =>
+        parentFields.map((parentField) =>
+          firestoreModule.getDocs(
+            firestoreModule.query(
+              firestoreModule.collection(firestore, collectionName),
+              firestoreModule.where(parentField, 'in', parentIdChunk),
+            ),
+          ),
+        ),
+      ),
+    );
+    const nodesById = new Map<string, LearningCatalogNodeModel>();
+
+    for (const snapshot of snapshots) {
+      for (const documentSnapshot of snapshot.docs) {
+        const node = resolveLearningCatalogNode(kind, documentSnapshot.id, documentSnapshot.data());
+
+        if (!isPublishedLearningCatalogNode(node) || !node.parentId || !parentIdLookup.has(node.parentId)) {
+          continue;
+        }
+
+        nodesById.set(node.id, node);
+      }
+    }
+
+    return sortLearningCatalogNodes([...nodesById.values()]);
+  }
+
   private async readCatalogDocument(
     firestore: Firestore,
     firestoreModule: Awaited<typeof FirebaseLearnBootstrapRepository.FIREBASE_MODULES>[1],
-    collectionName: 'catalog_learning_worlds' | 'catalog_learning_chapters' | 'catalog_learning_units',
+    collectionName: LearningCatalogCollectionName,
     documentId: string | null,
     kind: LearningCatalogNodeKind,
   ): Promise<LearningCatalogNodeModel | null> {
@@ -193,6 +267,16 @@ export class FirebaseLearnBootstrapRepository {
     }
 
     return nodes.find((node) => node.id === fallbackNode.id) ?? fallbackNode;
+  }
+
+  private chunkValues(values: ReadonlyArray<string>, chunkSize: number): ReadonlyArray<ReadonlyArray<string>> {
+    const chunks: Array<ReadonlyArray<string>> = [];
+
+    for (let index = 0; index < values.length; index += chunkSize) {
+      chunks.push(values.slice(index, index + chunkSize));
+    }
+
+    return chunks;
   }
 
   private async initialize(): Promise<void> {

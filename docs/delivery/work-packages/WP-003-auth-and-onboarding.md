@@ -82,4 +82,5 @@ V1 kullanicisinin sisteme giris, kayit, ilk profil olusturma ve rol-temelli onbo
 - Unit kartlari, catalog icindeki prerequisite refs alanlarini okuyarak ilk onkosul baglarini learn yuzeyinde gostermeye basladi.
 - `/app/learn/world/:worldId` route ailesi acildi; world detail sayfasi ilgili chapter ve unit kesitlerini published catalog'tan okuyarak liste gorunumunden detay akisina geciyor.
 - `/app/learn/unit/:unitId` route ailesi acildi; unit detail sayfasi parent world/chapter ve prerequisite baglarini current progression ile ayni yuzeyde gosteriyor.
-- Siradaki teknik slice, `catalog_learning_lessons` bagini `/app/learn/unit/:unitId` detail yuzeyine tasiyarak lesson catalog kesitini ve start boundary'sini acmaktir.
+- `catalog_learning_lessons` bagi `/app/learn/unit/:unitId` detail yuzeyine tasindi; unit detail sayfasi published lesson kesitini ve progression/current-first fallback mantigiyla canonical start boundary'yi gostermeye basladi.
+- Siradaki teknik slice, lesson execution route veya command surface'ini acarak bu start boundary'yi gercek baslatma akisina baglamaktir.

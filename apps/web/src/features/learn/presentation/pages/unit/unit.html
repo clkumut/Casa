@@ -43,6 +43,38 @@
   </article>
 
   <article class="page-panel learn-unit-panel" *ngIf="selectedUnit()">
+    <span class="page-eyebrow">Lessons</span>
+    <h3 class="learn-section-title">Published lesson kesiti</h3>
+
+    <section class="learn-unit-note" *ngIf="startLesson() as startLesson; else noLessonStartState">
+      <span class="learn-card-label">Start boundary</span>
+      <strong>{{ startLesson.title ?? startLesson.id }}</strong>
+      <p class="muted-text">{{ resolveLessonBoundaryHint(startLesson) }}</p>
+    </section>
+
+    <ng-template #noLessonStartState>
+      <section class="learn-unit-note">
+        <span class="learn-card-label">Start boundary</span>
+        <p class="muted-text">
+          Bu unit icin published lesson bulunmadigi icin canonical baslangic noktasi henuz acilmadi.
+        </p>
+      </section>
+    </ng-template>
+
+    <p class="muted-text" *ngIf="lessons().length === 0">Bu unit icin published lesson bulunamadi.</p>
+
+    <article class="learn-prerequisite-card" *ngFor="let lesson of lessons()">
+      <div class="learn-node-headline">
+        <strong>{{ lesson.title ?? lesson.id }}</strong>
+        <span class="muted-text" *ngIf="isCurrentLesson(lesson.id)">current lesson</span>
+        <span class="muted-text" *ngIf="!isCurrentLesson(lesson.id) && isStartLesson(lesson.id)">start boundary</span>
+      </div>
+      <span class="muted-text">{{ resolveNodeSummary(lesson) }}</span>
+      <span class="muted-text">{{ resolveLessonMeta(lesson) }}</span>
+    </article>
+  </article>
+
+  <article class="page-panel learn-unit-panel" *ngIf="selectedUnit()">
     <span class="page-eyebrow">Prerequisites</span>
     <h3 class="learn-section-title">Onkosul baglari</h3>
 
@@ -59,7 +91,7 @@
     <section class="learn-unit-note">
       <span class="learn-card-label">Unit note</span>
       <p class="muted-text">
-        Bu route, published catalog ile progression snapshot arasindaki detail bagini dogrular. Lesson start ve completion command yuzeyi sonraki slice'ta acilacak.
+        Bu route, published catalog ile progression snapshot arasindaki detail bagini dogrular. Lesson catalog kesiti ve canonical start boundary acildi; execution ve completion command yuzeyi sonraki slice'ta baglanacak.
       </p>
     </section>
   </article>

@@ -53,8 +53,8 @@ export class LearnHomePageComponent {
       },
       {
         label: 'Lesson',
-        value: progression?.currentLessonId ?? 'atanmadi',
-        hint: null,
+        value: this.resolveCatalogValue(catalog.lesson, progression?.currentLessonId),
+        hint: this.resolveCatalogHint(catalog.lesson, progression?.currentLessonId),
       },
       {
         label: 'Completed lessons',
