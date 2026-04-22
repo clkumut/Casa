@@ -12,6 +12,7 @@ import { AuthOnboardingWelcomePageComponent } from '../../features/auth/presenta
 import { AuthRegisterPageComponent } from '../../features/auth/presentation/pages/register/register';
 import type { OnboardingStepId } from '../../features/auth/models/onboarding-step-id.model';
 import { LearnHomePageComponent } from '../../features/learn/presentation/pages/home/home';
+import { LearnLessonPageComponent } from '../../features/learn/presentation/pages/lesson/lesson';
 import { LearnUnitPageComponent } from '../../features/learn/presentation/pages/unit/unit';
 import { LearnWorldPageComponent } from '../../features/learn/presentation/pages/world/world';
 import { PlaceholderPageComponent } from '../routes/placeholder/placeholder';
@@ -115,6 +116,10 @@ export const routes: Routes = [
       {
         path: 'learn/world/:worldId',
         component: LearnWorldPageComponent,
+      },
+      {
+        path: 'learn/unit/:unitId/lesson/:lessonId',
+        component: LearnLessonPageComponent,
       },
       {
         path: 'learn/unit/:unitId',

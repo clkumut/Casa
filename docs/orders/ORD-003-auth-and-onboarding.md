@@ -50,7 +50,8 @@ Casa V1 kullanicisinin login, register ve onboarding akislarini resmi delivery s
 - `/app/learn/world/:worldId` route ailesi acildi; world detail sayfasi published chapter ve unit kesitleriyle detay akisina gecti.
 - `/app/learn/unit/:unitId` route ailesi acildi; unit detail sayfasi parent baglari ve prerequisite iliskileriyle detail bagini dogruluyor.
 - `catalog_learning_lessons` bagi `/app/learn/unit/:unitId` detail yuzeyine tasindi; unit detail published lesson listesi ve canonical start boundary ile progression bagini bir adim daha ileri tasiyor.
-- Siradaki slice, bu start boundary'yi lesson execution route'u veya command surface'i ile gercek baslatma akisina baglamaktir.
+- `app/learn/unit/:unitId/lesson/:lessonId` route ailesi acildi; unit detaildeki start boundary ve lesson secimi artik gercek lesson entry yuzeyine baglaniyor.
+- Siradaki slice, lesson execution route'u icinde challenge ve completion command surface'ini acmaktir.
 
 ## Beklenen Ciktilar
 

@@ -30,6 +30,11 @@ export class LearnUnitPageComponent {
 
     return this.learnBootstrapFacade.catalogMap().lessons.filter((lesson) => lesson.parentId === unitId);
   });
+  protected readonly currentLesson = computed(() => {
+    const currentLessonId = this.progression()?.currentLessonId;
+
+    return this.lessons().find((lesson) => lesson.id === currentLessonId) ?? null;
+  });
   protected readonly selectedUnit = computed(() => {
     const unitId = this.unitId();
 
@@ -66,6 +71,9 @@ export class LearnUnitPageComponent {
 
     return lessons.find((lesson) => lesson.id === currentLessonId) ?? lessons[0] ?? null;
   });
+  protected readonly currentLessonLabel = computed(() => {
+    return this.currentLesson()?.title ?? this.progression()?.currentLessonId ?? 'atanmadi';
+  });
 
   protected backLink = computed(() => {
     const worldId = this.parentWorld()?.id;
@@ -91,6 +99,12 @@ export class LearnUnitPageComponent {
 
   protected resolveNodeSummary(node: LearningCatalogNodeModel): string {
     return node.description ?? this.resolveUnitMeta(node);
+  }
+
+  protected resolveLessonLink(lessonId: string): Array<string> {
+    const unitId = this.selectedUnit()?.id ?? this.unitId();
+
+    return unitId ? ['/app/learn/unit', unitId, 'lesson', lessonId] : ['/app/learn'];
   }
 
   protected resolveLessonBoundaryHint(lesson: LearningCatalogNodeModel): string {

@@ -1,0 +1,85 @@
+<section class="learn-lesson-layout">
+  <article class="page-panel learn-lesson-panel">
+    <a class="learn-back-link" [routerLink]="backLink()">Unit detail'e don</a>
+    <span class="page-eyebrow">Learn / Lesson</span>
+    <h2 class="page-title">{{ selectedLesson()?.title ?? (lessonId() ?? 'Lesson') }}</h2>
+    <p class="page-description">
+      {{ selectedLesson()?.description ?? 'Bu route, unit detaildeki canonical start boundary veya lesson secimi uzerinden acilan lesson execution giris yuzeyidir.' }}
+    </p>
+
+    <p class="muted-text" *ngIf="status() === 'loading'">Lesson entry yukleniyor.</p>
+    <p class="learn-error" *ngIf="status() === 'error'">Lesson entry okunamiyor.</p>
+
+    <section class="learn-not-found" *ngIf="status() === 'ready' && (!selectedUnit() || !selectedLesson())">
+      <h3>Lesson bulunamadi</h3>
+      <p class="muted-text">Route param ile gelen unit ve lesson id published catalog kesitinde birlikte cozulmedi.</p>
+    </section>
+
+    <section class="learn-lesson-summary" *ngIf="selectedLesson() as lesson">
+      <article class="learn-lesson-card">
+        <span class="learn-card-label">Parent world</span>
+        <strong>{{ parentWorld()?.title ?? 'atanmadi' }}</strong>
+        <span class="muted-text">{{ parentWorld()?.id ?? 'World baglanti bilgisi yok' }}</span>
+      </article>
+
+      <article class="learn-lesson-card">
+        <span class="learn-card-label">Parent chapter</span>
+        <strong>{{ parentChapter()?.title ?? 'atanmadi' }}</strong>
+        <span class="muted-text">{{ parentChapter()?.id ?? 'Chapter baglanti bilgisi yok' }}</span>
+      </article>
+
+      <article class="learn-lesson-card">
+        <span class="learn-card-label">Parent unit</span>
+        <strong>{{ selectedUnit()?.title ?? 'atanmadi' }}</strong>
+        <span class="muted-text">{{ selectedUnit()?.id ?? 'Unit baglanti bilgisi yok' }}</span>
+      </article>
+
+      <article class="learn-lesson-card">
+        <span class="learn-card-label">Execution state</span>
+        <strong>{{ executionStateLabel() }}</strong>
+        <span class="muted-text">{{ resolveLessonMeta(lesson) }}</span>
+      </article>
+    </section>
+  </article>
+
+  <article class="page-panel learn-lesson-panel" *ngIf="selectedLesson() as lesson">
+    <span class="page-eyebrow">Execution Entry</span>
+    <h3 class="learn-section-title">Lesson execution boundary</h3>
+
+    <section class="learn-execution-note">
+      <span class="learn-card-label">Route note</span>
+      <strong>{{ lesson.title ?? lesson.id }}</strong>
+      <p class="muted-text">
+        Execution route acildi. Challenge akisi ve completion command surface sonraki delivery slice'ta bu yuzeye baglanacak.
+      </p>
+    </section>
+
+    <div class="learn-navigation-row">
+      <a class="learn-action-link" *ngIf="previousLesson() as previousLesson" [routerLink]="resolveLessonLink(previousLesson.id)">
+        Onceki lesson
+      </a>
+      <a class="learn-action-link" *ngIf="nextLesson() as nextLesson" [routerLink]="resolveLessonLink(nextLesson.id)">
+        Sonraki lesson
+      </a>
+    </div>
+  </article>
+
+  <article class="page-panel learn-lesson-panel" *ngIf="selectedUnit()">
+    <span class="page-eyebrow">Unit Lessons</span>
+    <h3 class="learn-section-title">Ayni unit icindeki lessonlar</h3>
+
+    <p class="muted-text" *ngIf="unitLessons().length === 0">Bu unit icin published lesson bulunamadi.</p>
+
+    <article class="learn-lesson-card" *ngFor="let lesson of unitLessons()" [class.is-selected]="isSelectedLesson(lesson.id)">
+      <div class="learn-node-headline">
+        <strong>{{ lesson.title ?? lesson.id }}</strong>
+        <div class="learn-badge-row">
+          <span class="learn-current-badge" *ngIf="isCurrentLesson(lesson.id)">current</span>
+          <span class="learn-selected-badge" *ngIf="isSelectedLesson(lesson.id)">selected</span>
+        </div>
+      </div>
+      <span class="muted-text">{{ resolveNodeSummary(lesson) }}</span>
+      <a class="learn-action-link" [routerLink]="resolveLessonLink(lesson.id)">Lesson entry</a>
+    </article>
+  </article>
+</section>

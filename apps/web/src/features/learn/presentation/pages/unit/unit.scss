@@ -14,6 +14,13 @@
   width: fit-content;
 }
 
+.learn-action-link {
+  color: var(--casa-ink);
+  font-weight: 700;
+  text-decoration: none;
+  width: fit-content;
+}
+
 .learn-unit-summary {
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }

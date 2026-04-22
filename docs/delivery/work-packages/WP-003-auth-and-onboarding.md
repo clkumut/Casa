@@ -83,4 +83,5 @@ V1 kullanicisinin sisteme giris, kayit, ilk profil olusturma ve rol-temelli onbo
 - `/app/learn/world/:worldId` route ailesi acildi; world detail sayfasi ilgili chapter ve unit kesitlerini published catalog'tan okuyarak liste gorunumunden detay akisina geciyor.
 - `/app/learn/unit/:unitId` route ailesi acildi; unit detail sayfasi parent world/chapter ve prerequisite baglarini current progression ile ayni yuzeyde gosteriyor.
 - `catalog_learning_lessons` bagi `/app/learn/unit/:unitId` detail yuzeyine tasindi; unit detail sayfasi published lesson kesitini ve progression/current-first fallback mantigiyla canonical start boundary'yi gostermeye basladi.
-- Siradaki teknik slice, lesson execution route veya command surface'ini acarak bu start boundary'yi gercek baslatma akisina baglamaktir.
+- `app/learn/unit/:unitId/lesson/:lessonId` route ailesi acildi; unit detaildeki canonical start boundary ve lesson listesi artik gercek lesson execution entry yuzeyine baglaniyor.
+- Siradaki teknik slice, lesson execution route'u icinde challenge akisi ve completion command surface'ini acmaktir.

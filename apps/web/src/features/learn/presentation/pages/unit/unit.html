@@ -36,8 +36,11 @@
 
       <article class="learn-unit-card">
         <span class="learn-card-label">Current lesson</span>
-        <strong>{{ progression()?.currentLessonId ?? 'atanmadi' }}</strong>
-        <span class="muted-text">Tamamlama komutu sonraki delivery slice'ta acilacak.</span>
+        <strong>{{ currentLessonLabel() }}</strong>
+        <a class="learn-action-link" *ngIf="currentLesson() as currentLesson" [routerLink]="resolveLessonLink(currentLesson.id)">
+          Current lesson entry
+        </a>
+        <span class="muted-text" *ngIf="!currentLesson()">Execution route canonical start boundary uzerinden acildi.</span>
       </article>
     </section>
   </article>
@@ -50,6 +53,7 @@
       <span class="learn-card-label">Start boundary</span>
       <strong>{{ startLesson.title ?? startLesson.id }}</strong>
       <p class="muted-text">{{ resolveLessonBoundaryHint(startLesson) }}</p>
+      <a class="learn-action-link" [routerLink]="resolveLessonLink(startLesson.id)">Start lesson entry</a>
     </section>
 
     <ng-template #noLessonStartState>
@@ -71,6 +75,7 @@
       </div>
       <span class="muted-text">{{ resolveNodeSummary(lesson) }}</span>
       <span class="muted-text">{{ resolveLessonMeta(lesson) }}</span>
+      <a class="learn-action-link" [routerLink]="resolveLessonLink(lesson.id)">Lesson entry</a>
     </article>
   </article>
 
@@ -91,7 +96,7 @@
     <section class="learn-unit-note">
       <span class="learn-card-label">Unit note</span>
       <p class="muted-text">
-        Bu route, published catalog ile progression snapshot arasindaki detail bagini dogrular. Lesson catalog kesiti ve canonical start boundary acildi; execution ve completion command yuzeyi sonraki slice'ta baglanacak.
+        Bu route, published catalog ile progression snapshot arasindaki detail bagini dogrular. Lesson catalog kesiti, canonical start boundary ve lesson execution route baglantisi acildi; challenge ve completion command yuzeyi sonraki slice'ta baglanacak.
       </p>
     </section>
   </article>
