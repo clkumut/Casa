@@ -27,6 +27,12 @@ Bu indeks, gate ve release kanitlarinin hangi kimlikle tutulacagini ve hangi ala
 | EVD-G3-001 | Build Ready Evidence | Pass | WP-002 / ORD-002 | [EVD-G3-001](./gates/EVD-G3-001-build-ready.md) |
 | EVD-G5-001 | Release Ready Evidence | Not Started - Planned Evidence | WP-011 / ORD TBD | [EVD-G5-001](./gates/EVD-G5-001-release-ready.md) |
 
+## Work Package Kayitlari
+
+| EVD ID | Konu | Durum | Bagli Slice | Detay |
+| --- | --- | --- | --- | --- |
+| EVD-WP-005-001 | Trusted Learning Completion Evidence | Draft - Evidence Collected | WP-005 / ORD-004 | [EVD-WP-005-001](./work-packages/EVD-WP-005-001-trusted-learning-completion.md) |
+
 ## Gate Kayit Dizini
 
 - Kullanim standardi: [./gates/README.md](./gates/README.md)

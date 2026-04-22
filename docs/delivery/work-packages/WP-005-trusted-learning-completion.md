@@ -6,11 +6,11 @@ Ders tamamlama, ilerleme, XP ve heart ekonomisini trusted write modeline bagli s
 
 ## Durum
 
-`Planned`
+`In Progress`
 
 ## Bagli Emir
 
-- Henuz atanmadi. Resmi execution icin yeni ORD acilacak.
+- [../../orders/ORD-004-trusted-learning-completion.md](../../orders/ORD-004-trusted-learning-completion.md)
 
 ## Dayandigi Kararlar
 
@@ -62,6 +62,7 @@ Ders tamamlama, ilerleme, XP ve heart ekonomisini trusted write modeline bagli s
 ## Notlar
 
 - Bu slice V1 cekirdegidir; onceki work package'lar tamamlanmadan baslatilmaz.
-- Resmi ORD henuz acilmadigi icin WP durumu governance geregi `Planned` seviyesinde kalir.
+- Resmi ORD acildi; WP-005 execution sirasinda emulator smoke ve sign-off kaniti toplanacak.
 - Teknik temel dilimi olarak `completeLesson` callable export edildi; idempotent request anahtari ile `learning_completion_events`, `progressionSnapshots/default` ve `rightRailSnapshots/default` guncelleme zinciri acildi.
-- Lesson execution route icinde ilk challenge gate ve minimal completion CTA'si baglandi; sonraki delivery adimi challenge motoru, emulator smoke ve guvenlik sign-off'unu tamamlamaktir.
+- `SMK-WP-005-001` smoke kaydi ile `startLessonChallenge` ve `completeLesson` callable'lari emulator ortaminda dogrulandi; lesson completion sonrasi progression ilerlemesi ve XP/hearts projection guncellemesi kanita baglandi.
+- Sonraki delivery adimi, negatif abuse/rules smoke kanitini ve Security + QA sign-off'unu tamamlamaktir.
