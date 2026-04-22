@@ -1,0 +1,57 @@
+<section class="learn-detail-grid">
+  <article class="page-panel learn-detail-panel">
+    <a class="learn-back-link" [routerLink]="['/app/learn']">Learn listesine don</a>
+    <span class="page-eyebrow">Learn / World</span>
+    <h2 class="page-title">{{ selectedWorld()?.title ?? (worldId() ?? 'World') }}</h2>
+    <p class="page-description">
+      {{ selectedWorld()?.description ?? 'Bu world icin published chapter ve unit kesitleri gosteriliyor.' }}
+    </p>
+
+    <p class="muted-text" *ngIf="status() === 'loading'">World detail yukleniyor.</p>
+    <p class="learn-error" *ngIf="status() === 'error'">World detail okunamiyor.</p>
+
+    <section class="learn-detail-summary" *ngIf="selectedWorld() as world">
+      <article class="learn-summary-card">
+        <span class="learn-summary-label">World</span>
+        <strong>{{ world.title ?? world.id }}</strong>
+        <span class="muted-text">{{ resolveNodeSummary(world) }}</span>
+      </article>
+
+      <article class="learn-summary-card">
+        <span class="learn-summary-label">Current status</span>
+        <strong>{{ isCurrentWorld() ? 'active world' : 'published world' }}</strong>
+        <span class="muted-text">{{ resolveWorldHint(world) }}</span>
+      </article>
+    </section>
+
+    <section class="learn-not-found" *ngIf="status() === 'ready' && !selectedWorld()">
+      <h3>World bulunamadi</h3>
+      <p class="muted-text">Route param ile gelen world id icin published catalog kaydi cozulmedi.</p>
+    </section>
+  </article>
+
+  <section class="page-panel learn-detail-panel" *ngIf="selectedWorld()">
+    <span class="page-eyebrow">Published Chapters</span>
+    <h3 class="learn-section-title">World icindeki chapter ve unit listesi</h3>
+
+    <p class="muted-text" *ngIf="chapters().length === 0">Bu world icin published chapter bulunamadi.</p>
+
+    <article class="learn-chapter-card" *ngFor="let chapter of chapters()">
+      <div class="learn-node-headline">
+        <strong>{{ chapter.title ?? chapter.id }}</strong>
+        <span class="learn-current-badge" *ngIf="isCurrentChapter(chapter.id)">current</span>
+      </div>
+      <span class="muted-text">{{ resolveNodeSummary(chapter) }}</span>
+
+      <div class="learn-unit-list">
+        <a
+          *ngFor="let unit of unitsByChapter(chapter.id)"
+          class="learn-unit-link"
+          [routerLink]="['/app/learn/unit', unit.id]">
+          <span>{{ unit.title ?? unit.id }}</span>
+          <span class="muted-text">{{ resolveUnitMeta(unit) }}</span>
+        </a>
+      </div>
+    </article>
+  </section>
+</section>

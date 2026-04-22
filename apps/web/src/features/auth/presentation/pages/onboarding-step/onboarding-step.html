@@ -1,0 +1,63 @@
+<casa-auth-flow-page [content]="content">
+  <section class="step-summary-grid">
+    <article class="step-summary-card">
+      <span class="step-summary-label">Read status</span>
+      <strong>{{ readStatus() }}</strong>
+      <span class="muted-text">Draft ve catalog ayni facade uzerinden tasiniyor.</span>
+    </article>
+
+    <article class="step-summary-card">
+      <span class="step-summary-label">Mevcut secim</span>
+      <strong>{{ selectedTitle() }}</strong>
+      <span class="muted-text">Kod: {{ selectedCode() ?? 'atanmadi' }}</span>
+    </article>
+  </section>
+
+  <p class="step-note" *ngIf="readStatus() === 'loading'">
+    Onboarding catalog ve kullanici draft snapshot'i yukleniyor.
+  </p>
+
+  <p class="step-note" *ngIf="activeSaveStep() === step">
+    Secim kaydediliyor ve sonraki onboarding adimina gecis hazirlaniyor.
+  </p>
+
+  <p class="step-note step-note-error" *ngIf="readStatus() === 'error'">
+    Read model su an cozulmedi. Firestore baglantisi ve emulator durumunu dogrulayin.
+  </p>
+
+  <p class="step-note step-note-error" *ngIf="commandError() as commandError">
+    {{ commandError }}
+  </p>
+
+  <section class="step-option-grid" *ngIf="options().length > 0; else emptyOptionsState">
+    <article
+      *ngFor="let option of options()"
+      class="step-option-card"
+      [class.is-selected]="option.code === selectedCode()"
+    >
+      <span class="step-option-code">{{ option.code }}</span>
+      <h3>{{ option.title }}</h3>
+      <p class="muted-text" *ngIf="option.description">{{ option.description }}</p>
+      <span class="step-option-state">
+        {{ option.code === selectedCode() ? 'Mevcut draft secimi' : 'Catalog secenegi' }}
+      </span>
+      <button
+        type="button"
+        class="step-option-action"
+        [disabled]="readStatus() !== 'ready' || activeSaveStep() === step"
+        (click)="selectOption(option)"
+      >
+        {{ option.code === selectedCode() ? 'Secimi tekrar kaydet' : 'Bu secenegi kaydet' }}
+      </button>
+    </article>
+  </section>
+
+  <ng-template #emptyOptionsState>
+    <section class="step-empty-state">
+      <h3>{{ stepLabel }} catalog verisi bekliyor</h3>
+      <p class="muted-text">
+        catalog_onboarding_options read modeli baglandi; bu step icin veri geldikce kartlar otomatik acilacak.
+      </p>
+    </section>
+  </ng-template>
+</casa-auth-flow-page>

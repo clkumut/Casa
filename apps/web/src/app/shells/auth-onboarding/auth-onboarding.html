@@ -1,0 +1,24 @@
+<div class="auth-shell">
+  <aside class="auth-sidebar page-panel">
+    <p class="page-eyebrow">Auth Shell</p>
+    <h1>Kimlik ve onboarding akisi</h1>
+    <p class="muted-text">
+      Guest-only ve onboarding route gruplari bu alanda izole edilir.
+    </p>
+
+    <nav aria-label="Auth navigation">
+      <a
+        *ngFor="let item of navigationItems"
+        class="shell-link"
+        [routerLink]="item.href"
+        routerLinkActive="is-active"
+      >
+        {{ item.label }}
+      </a>
+    </nav>
+  </aside>
+
+  <main class="auth-content">
+    <router-outlet></router-outlet>
+  </main>
+</div>

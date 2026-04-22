@@ -1,7 +1,7 @@
 import { bootstrapApplication } from '@angular/platform-browser';
 
-import { AppComponent } from './app/app.component';
-import { appConfig } from './app/app.config';
+import { AppComponent } from './app/root/root';
+import { appConfig } from './app/root/config';
 
 void bootstrapApplication(AppComponent, appConfig).catch((error: unknown) => {
   console.error(error);

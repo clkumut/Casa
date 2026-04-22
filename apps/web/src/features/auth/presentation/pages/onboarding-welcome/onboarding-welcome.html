@@ -1,0 +1,62 @@
+<casa-auth-flow-page [content]="content">
+  <section class="welcome-summary">
+    <article class="welcome-summary-card">
+      <span class="welcome-summary-label">Oturum</span>
+      <strong>{{ session().email ?? 'Anonim' }}</strong>
+      <span class="muted-text">UID: {{ session().uid ?? 'bagli degil' }}</span>
+    </article>
+
+    <article class="welcome-summary-card">
+      <span class="welcome-summary-label">Read model</span>
+      <strong>{{ onboardingReadStatus() }}</strong>
+      <span class="muted-text">Draft ve catalog ayni feature facade uzerinden izleniyor.</span>
+    </article>
+  </section>
+
+  <section class="welcome-draft-grid">
+    <a
+      *ngFor="let item of draftSummary()"
+      class="welcome-draft-card"
+      [routerLink]="item.href"
+    >
+      <span class="welcome-summary-label">{{ item.label }}</span>
+      <strong>{{ item.value }}</strong>
+      <span class="muted-text">{{ item.caption }}</span>
+    </a>
+  </section>
+
+  <section class="welcome-checklist">
+    <h3>Siradaki onboarding baglari</h3>
+    <ul>
+      <li *ngFor="let item of checklist">{{ item }}</li>
+    </ul>
+  </section>
+
+  <p class="welcome-note" *ngIf="onboardingReadStatus() === 'loading'">
+    Kullanici draft belgesi ve catalog_onboarding_options verileri okunuyor.
+  </p>
+
+  <p class="welcome-note" *ngIf="onboardingReadStatus() === 'error'">
+    Onboarding read modeli su an cozulmedi; Firestore baglantisini dogrulayin.
+  </p>
+
+  <p class="welcome-note" *ngIf="!canFinalize() && onboardingReadStatus() === 'ready'">
+    Finalize adimi, tum onboarding secimleri draft belgede doldugunda acilacak.
+  </p>
+
+  <p class="welcome-note welcome-note-error" *ngIf="commandError() as commandError">
+    {{ commandError }}
+  </p>
+
+  <div class="welcome-actions">
+    <button
+      type="button"
+      [disabled]="!canFinalize() || isFinalizing()"
+      (click)="finalizeOnboarding()"
+    >
+      {{ finalizeButtonLabel() }}
+    </button>
+    <button type="button" (click)="signOut()">Oturumu kapat</button>
+    <a routerLink="/auth/onboarding/goal">Goal adimina gec</a>
+  </div>
+</casa-auth-flow-page>

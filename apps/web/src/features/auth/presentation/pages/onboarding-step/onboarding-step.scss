@@ -1,0 +1,73 @@
+.step-summary-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.step-summary-card,
+.step-option-card,
+.step-empty-state {
+  background: var(--casa-surface-muted);
+  border: 1px solid var(--casa-border);
+  border-radius: 18px;
+  display: grid;
+  gap: 0.5rem;
+  padding: 1rem 1.1rem;
+}
+
+.step-summary-label,
+.step-option-code,
+.step-option-state {
+  color: var(--casa-ink-soft);
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.step-note {
+  color: var(--casa-ink-soft);
+  margin: 0;
+}
+
+.step-note-error {
+  color: #a33d2d;
+}
+
+.step-option-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.step-option-card.is-selected {
+  border-color: rgba(15, 107, 129, 0.36);
+  box-shadow: 0 0 0 1px rgba(15, 107, 129, 0.12);
+}
+
+.step-option-action {
+  background: transparent;
+  border: 1px solid var(--casa-border);
+  border-radius: 999px;
+  color: var(--casa-ink);
+  cursor: pointer;
+  font-weight: 700;
+  min-height: 2.85rem;
+  padding: 0 1rem;
+}
+
+.step-option-action:disabled {
+  cursor: wait;
+  opacity: 0.6;
+}
+
+.step-option-card h3,
+.step-empty-state h3 {
+  margin: 0;
+}
+
+@media (max-width: 720px) {
+  .step-summary-grid,
+  .step-option-grid {
+    grid-template-columns: 1fr;
+  }
+}

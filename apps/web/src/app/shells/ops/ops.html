@@ -1,0 +1,26 @@
+<div class="ops-shell">
+  <header class="ops-header page-panel">
+    <div>
+      <p class="page-eyebrow">Ops Shell</p>
+      <h1>Yayin ve release operasyonlari</h1>
+      <p class="muted-text">
+        Ops role guard ile korunacak operasyon route aileleri icin placeholder shell.
+      </p>
+    </div>
+
+    <nav class="ops-nav" aria-label="Ops navigation">
+      <a
+        *ngFor="let item of navigationItems"
+        class="shell-link"
+        [routerLink]="item.href"
+        routerLinkActive="is-active"
+      >
+        {{ item.label }}
+      </a>
+    </nav>
+  </header>
+
+  <main class="ops-content">
+    <router-outlet></router-outlet>
+  </main>
+</div>

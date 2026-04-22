@@ -1,0 +1,66 @@
+<section class="learn-unit-layout">
+  <article class="page-panel learn-unit-panel">
+    <a class="learn-back-link" [routerLink]="backLink()">{{ backLinkLabel() }}</a>
+    <span class="page-eyebrow">Learn / Unit</span>
+    <h2 class="page-title">{{ selectedUnit()?.title ?? (unitId() ?? 'Unit') }}</h2>
+    <p class="page-description">
+      {{ selectedUnit()?.description ?? 'Bu unit icin prerequisite ve progression baglami gosteriliyor.' }}
+    </p>
+
+    <p class="muted-text" *ngIf="status() === 'loading'">Unit detail yukleniyor.</p>
+    <p class="learn-error" *ngIf="status() === 'error'">Unit detail okunamiyor.</p>
+
+    <section class="learn-not-found" *ngIf="status() === 'ready' && !selectedUnit()">
+      <h3>Unit bulunamadi</h3>
+      <p class="muted-text">Route param ile gelen unit id icin published catalog kaydi cozulmedi.</p>
+    </section>
+
+    <section class="learn-unit-summary" *ngIf="selectedUnit() as unit">
+      <article class="learn-unit-card">
+        <span class="learn-card-label">Parent world</span>
+        <strong>{{ parentWorld()?.title ?? 'atanmadi' }}</strong>
+        <span class="muted-text">{{ parentWorld()?.id ?? 'World baglanti bilgisi yok' }}</span>
+      </article>
+
+      <article class="learn-unit-card">
+        <span class="learn-card-label">Parent chapter</span>
+        <strong>{{ parentChapter()?.title ?? 'atanmadi' }}</strong>
+        <span class="muted-text">{{ parentChapter()?.id ?? 'Chapter baglanti bilgisi yok' }}</span>
+      </article>
+
+      <article class="learn-unit-card">
+        <span class="learn-card-label">Progress state</span>
+        <strong>{{ isCurrentUnit() ? 'current unit' : 'published unit' }}</strong>
+        <span class="muted-text">{{ resolveUnitMeta(unit) }}</span>
+      </article>
+
+      <article class="learn-unit-card">
+        <span class="learn-card-label">Current lesson</span>
+        <strong>{{ progression()?.currentLessonId ?? 'atanmadi' }}</strong>
+        <span class="muted-text">Tamamlama komutu sonraki delivery slice'ta acilacak.</span>
+      </article>
+    </section>
+  </article>
+
+  <article class="page-panel learn-unit-panel" *ngIf="selectedUnit()">
+    <span class="page-eyebrow">Prerequisites</span>
+    <h3 class="learn-section-title">Onkosul baglari</h3>
+
+    <p class="muted-text" *ngIf="prerequisiteNodes().length === 0">Bu unit icin onkosul tanimli degil.</p>
+
+    <article class="learn-prerequisite-card" *ngFor="let prerequisite of prerequisiteNodes()">
+      <div class="learn-node-headline">
+        <strong>{{ prerequisite.title ?? prerequisite.id }}</strong>
+        <span class="muted-text">{{ prerequisite.kind }}</span>
+      </div>
+      <span class="muted-text">{{ resolveNodeSummary(prerequisite) }}</span>
+    </article>
+
+    <section class="learn-unit-note">
+      <span class="learn-card-label">Unit note</span>
+      <p class="muted-text">
+        Bu route, published catalog ile progression snapshot arasindaki detail bagini dogrular. Lesson start ve completion command yuzeyi sonraki slice'ta acilacak.
+      </p>
+    </section>
+  </article>
+</section>

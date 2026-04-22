@@ -33,9 +33,10 @@ casa/
 ```text
 apps/web/src/
 ├── app/
+│   ├── root/
 │   ├── shells/
 │   ├── routes/
-│   └── bootstrap/
+│   └── ...
 ├── core/
 │   ├── auth/
 │   ├── config/
@@ -53,6 +54,40 @@ apps/web/src/
         ├── presentation/
         └── models/
 ```
+
+## Angular UI Dosyalama ve Aile Klasorleme Standardi
+
+```text
+apps/web/src/
+├── app/
+│   ├── root/
+│   │   ├── root.ts
+│   │   ├── root.html
+│   │   ├── root.scss
+│   │   ├── config.ts
+│   │   └── routes.ts
+│   ├── shells/
+│   │   ├── public/
+│   │   ├── auth-onboarding/
+│   │   ├── workspace/
+│   │   └── ops/
+│   └── routes/
+│       └── placeholder/
+└── features/
+    └── [domain]/
+        └── presentation/
+            ├── components/
+            │   └── [family]/
+            └── pages/
+                └── [family]/
+```
+
+- Angular page, shell, route placeholder ve tekrar kullanilabilir UI yuzeyleri kendi aile klasorunde tutulur.
+- Her UI ailesi en az ayri `ts`, `html` ve `scss` dosyalarina bolunur; inline `template` ve `styles` kalici cozum olarak kabul edilmez.
+- Dosya adlarinda ek `.component` ibaresi kullanilmaz; aile adi dogrudan dosya adina verilir.
+- Root giris ailesi `app/root/` altinda tutulur ve `root.ts`, `root.html`, `root.scss`, `config.ts`, `routes.ts` dosyalarini icerir.
+- Feature page aileleri `features/[domain]/presentation/pages/[family]/`, reusable UI aileleri `features/[domain]/presentation/components/[family]/`, shell aileleri `app/shells/[family]/` ve route placeholder aileleri `app/routes/[family]/` altina yerlestirilir.
+- Bir aile klasoru yalniz ilgili UI yuzeyinin kaynaklarini tasir; model, facade veya repository ayni klasore yigilarak sinirlar bulandirilmaz.
 
 ## `apps/functions` Aile Standardi
 
@@ -77,6 +112,7 @@ apps/functions/src/
 
 - Her model, DTO, interface ve command/query kontrati ayri dosyada tutulur.
 - UI component, state ve repository ayni dosyada birlestirilmez.
+- Angular UI tarafinda `ts`, `html` ve `scss` ayrimi ile aile klasorleme standardi zorunludur.
 - Feature icindeki `domain` yalniz is kurali ve tipleri, `application` use-case orkestrasyonu, `infrastructure` Firebase baglantilarini tasir.
 - `core` yalniz cross-cutting concern'leri barindirir; domain mantigi buraya tasinmaz.
 
@@ -96,4 +132,5 @@ apps/functions/src/
 - `shared/` veya domainler arasi dumping klasoru
 - UI icinde dogrudan Firestore mutasyon mantigi
 - Bir dosyada hem runtime model hem DTO hem component tanimi
+- Angular UI yuzeylerinde `.component` son ekine geri donus veya inline template/style kullanimi
 - Test icin gecici JSON veya hardcoded runtime liste kullanimi

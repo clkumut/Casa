@@ -5,7 +5,8 @@ import { RouterOutlet } from '@angular/router';
   selector: 'casa-root',
   standalone: true,
   imports: [RouterOutlet],
-  template: '<router-outlet></router-outlet>',
+  templateUrl: './root.html',
+  styleUrl: './root.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AppComponent {}

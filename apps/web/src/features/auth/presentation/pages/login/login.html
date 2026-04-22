@@ -1,0 +1,25 @@
+<casa-auth-flow-page [content]="content">
+  <form class="auth-form" (submit)="signIn($event)">
+    <label class="auth-field">
+      <span>E-posta</span>
+      <input type="email" [value]="email()" (input)="updateEmail($event)" autocomplete="email" />
+    </label>
+
+    <label class="auth-field">
+      <span>Sifre</span>
+      <input
+        type="password"
+        [value]="password()"
+        (input)="updatePassword($event)"
+        autocomplete="current-password"
+      />
+    </label>
+
+    <p *ngIf="errorMessage()" class="auth-error">{{ errorMessage() }}</p>
+
+    <div class="auth-form-actions">
+      <button type="submit" [disabled]="isBusy()">{{ isBusy() ? 'Giris aciliyor...' : 'Giris yap' }}</button>
+      <a routerLink="/auth/register">Yeni hesap olustur</a>
+    </div>
+  </form>
+</casa-auth-flow-page>

@@ -1,0 +1,17 @@
+<div class="public-shell">
+  <header class="public-header">
+    <div>
+      <p class="shell-kicker">Casa V1</p>
+      <h1>Workspace shell scaffold</h1>
+    </div>
+    <nav class="public-nav" aria-label="Public navigation">
+      <a class="shell-link" routerLink="/" routerLinkActive="is-active" [routerLinkActiveOptions]="{ exact: true }">Ana Sayfa</a>
+      <a class="shell-link" routerLink="/auth/login" routerLinkActive="is-active">Giris</a>
+      <a class="shell-link" routerLink="/auth/register" routerLinkActive="is-active">Kayit</a>
+    </nav>
+  </header>
+
+  <main class="public-body">
+    <router-outlet></router-outlet>
+  </main>
+</div>

@@ -1,24 +1,24 @@
 import type { Route, Routes } from '@angular/router';
 
-import { authGuard } from '../core/guards/auth.guard';
-import { appReadinessResolver } from '../core/guards/app-readiness.resolver';
-import { guestOnlyGuard } from '../core/guards/guest-only.guard';
-import { onboardingCompleteGuard } from '../core/guards/onboarding-complete.guard';
-import { onboardingProgressGuard } from '../core/guards/onboarding-progress.guard';
-import { opsRoleGuard } from '../core/guards/ops-role.guard';
-import { AuthLoginPageComponent } from '../features/auth/presentation/pages/auth-login-page.component';
-import { AuthOnboardingStepPageComponent } from '../features/auth/presentation/pages/auth-onboarding-step-page.component';
-import { AuthOnboardingWelcomePageComponent } from '../features/auth/presentation/pages/auth-onboarding-welcome-page.component';
-import { AuthRegisterPageComponent } from '../features/auth/presentation/pages/auth-register-page.component';
-import { LearnHomePageComponent } from '../features/learn/presentation/pages/learn-home-page.component';
-import { LearnUnitPageComponent } from '../features/learn/presentation/pages/learn-unit-page.component';
-import { LearnWorldPageComponent } from '../features/learn/presentation/pages/learn-world-page.component';
-import type { OnboardingStepId } from '../features/auth/models/onboarding-step-id.model';
-import { AppShellComponent } from './shells/app-shell.component';
-import { AuthOnboardingShellComponent } from './shells/auth-onboarding-shell.component';
-import { OpsShellComponent } from './shells/ops-shell.component';
-import { PublicShellComponent } from './shells/public-shell.component';
-import { PlaceholderPageComponent } from './routes/placeholder-page.component';
+import { authGuard } from '../../core/guards/auth.guard';
+import { appReadinessResolver } from '../../core/guards/app-readiness.resolver';
+import { guestOnlyGuard } from '../../core/guards/guest-only.guard';
+import { onboardingCompleteGuard } from '../../core/guards/onboarding-complete.guard';
+import { onboardingProgressGuard } from '../../core/guards/onboarding-progress.guard';
+import { opsRoleGuard } from '../../core/guards/ops-role.guard';
+import { AuthLoginPageComponent } from '../../features/auth/presentation/pages/login/login';
+import { AuthOnboardingStepPageComponent } from '../../features/auth/presentation/pages/onboarding-step/onboarding-step';
+import { AuthOnboardingWelcomePageComponent } from '../../features/auth/presentation/pages/onboarding-welcome/onboarding-welcome';
+import { AuthRegisterPageComponent } from '../../features/auth/presentation/pages/register/register';
+import type { OnboardingStepId } from '../../features/auth/models/onboarding-step-id.model';
+import { LearnHomePageComponent } from '../../features/learn/presentation/pages/home/home';
+import { LearnUnitPageComponent } from '../../features/learn/presentation/pages/unit/unit';
+import { LearnWorldPageComponent } from '../../features/learn/presentation/pages/world/world';
+import { PlaceholderPageComponent } from '../routes/placeholder/placeholder';
+import { AuthOnboardingShellComponent } from '../shells/auth-onboarding/auth-onboarding';
+import { OpsShellComponent } from '../shells/ops/ops';
+import { PublicShellComponent } from '../shells/public/public';
+import { AppShellComponent } from '../shells/workspace/workspace';
 
 const createPlaceholderRoute = (
   path: string,

@@ -4,13 +4,8 @@ import { ActivatedRoute } from '@angular/router';
 @Component({
   selector: 'casa-placeholder-page',
   standalone: true,
-  template: `
-    <section class="page-panel">
-      <span class="page-eyebrow">Placeholder</span>
-      <h2 class="page-title">{{ title }}</h2>
-      <p class="page-description">{{ description }}</p>
-    </section>
-  `,
+  templateUrl: './placeholder.html',
+  styleUrl: './placeholder.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PlaceholderPageComponent {

@@ -33,6 +33,14 @@ Angular istemci, shell tabanli router yapisi ve feature bazli klasorleme ile kur
 | `presentation` | Pages, containers, dumb UI component'ler, route config |
 | `models` | DTO, view model, interface ve command payload dosyalari |
 
+## Angular UI Dosyalama Kurali
+
+- `app/root`, `app/shells`, `app/routes` ve feature `presentation` aileleri Angular'a uygun ayri `ts`, `html`, `scss` dosyalari ile tutulur.
+- Her UI yuzeyi kendi aile klasorunde bulunur; `login/login.ts`, `workspace/workspace.html`, `root/routes.ts` gibi dogrudan aile ismi kullanilir.
+- `.component` son eki yeni dosyalama standardinin parcasi degildir ve yeni uygulamalarda kullanilmaz.
+- Inline `template` ve `styles`, yalniz gecici debug veya kisa omurlu probe istisnasi olarak kabul edilir; kalici kodda commit edilmez.
+- Root uygulama girisi `app/root/` altinda toplanir; bootstrap component, application config ve route tanimlari ayni ailede tutulur.
+
 ## State Yonetimi
 
 - Auth, shell UI ve right rail meta-state `core/state` altinda tutulur.

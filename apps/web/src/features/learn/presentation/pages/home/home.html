@@ -1,0 +1,123 @@
+<section class="learn-page-grid">
+  <article class="page-panel learn-main-panel">
+    <span class="page-eyebrow">Learn</span>
+    <h2 class="page-title">Ogrenme haritasi bootstrap gorunumu</h2>
+    <p class="page-description">
+      Onboarding sonrasi ilk merkez-stage baglanti progression snapshot uzerinden acildi.
+    </p>
+
+    <section class="learn-status-row">
+      <article class="learn-status-card">
+        <span class="learn-status-label">Read status</span>
+        <strong>{{ status() }}</strong>
+        <span class="muted-text">Progression snapshot feature-local facade uzerinden tasiniyor.</span>
+      </article>
+
+      <article class="learn-status-card">
+        <span class="learn-status-label">Unlock state</span>
+        <strong>{{ progression()?.unlockState ?? 'bekleniyor' }}</strong>
+        <span class="muted-text">Mock veri yok; projection ne getirirse yalniz onu gosteriyoruz.</span>
+      </article>
+    </section>
+
+    <p class="muted-text" *ngIf="status() === 'loading'">
+      Learning progression snapshot yukleniyor.
+    </p>
+
+    <p class="muted-text" *ngIf="status() === 'ready'">
+      Current node metadata, published curriculum listesi ve detail route baglari ayni read modelde cozuluyor.
+    </p>
+
+    <p class="learn-error" *ngIf="status() === 'error'">
+      Learning progression snapshot su an okunamiyor.
+    </p>
+
+    <section class="learn-empty-state page-panel" *ngIf="status() === 'ready' && !progression()">
+      <h3>Progression snapshot bekleniyor</h3>
+      <p class="muted-text">
+        Learn route published world listesini gostermeye hazir. Kullanici progression snapshot gelince current chapter ve unit listeleri ayni yuzeye oturacak.
+      </p>
+    </section>
+
+    <section class="learn-cards-grid" *ngIf="progression() as progressionSnapshot">
+      <article *ngFor="let card of progressionCards()" class="learn-card">
+        <span class="learn-card-label">{{ card.label }}</span>
+        <strong>{{ card.value }}</strong>
+        <span class="muted-text" *ngIf="card.hint">{{ card.hint }}</span>
+      </article>
+
+      <article class="learn-card learn-card-wide">
+        <span class="learn-card-label">Bootstrap notu</span>
+        <p class="muted-text">
+          Mevcut snapshot World {{ progressionSnapshot.currentWorldId ?? 'yok' }}, Chapter {{ progressionSnapshot.currentChapterId ?? 'yok' }}, Unit {{ progressionSnapshot.currentUnitId ?? 'yok' }} ve Lesson {{ progressionSnapshot.currentLessonId ?? 'yok' }} alanlarini aciyor. Published world/chapter/unit liste gorunumu, detail route baglari ve unit prerequisite baglari ayni route'a eklendi.
+        </p>
+      </article>
+    </section>
+
+    <section class="page-panel learn-map-panel" *ngIf="status() === 'ready'">
+      <header class="learn-map-header">
+        <div>
+          <span class="page-eyebrow">Learning Map</span>
+          <h3 class="learn-map-title">Published curriculum listesi</h3>
+        </div>
+        <p class="muted-text">
+          Liste yalniz published catalog belgelerini gosterir, current progression node'larini isaretler ve detail route'lara baglanir.
+        </p>
+      </header>
+
+      <div class="learn-map-columns">
+        <section class="learn-map-column">
+          <h4>Worlds</h4>
+          <p class="muted-text" *ngIf="publishedWorlds().length === 0">Published world bulunamadi.</p>
+          <article
+            *ngFor="let world of publishedWorlds()"
+            class="learn-map-node"
+            [class.learn-map-node-current]="isCurrentNode('world', world.id)">
+            <div class="learn-map-node-topline">
+              <strong>{{ world.title ?? world.id }}</strong>
+              <span class="learn-current-badge" *ngIf="isCurrentNode('world', world.id)">current</span>
+            </div>
+            <span class="muted-text">{{ resolveNodeSummary(world) }}</span>
+            <a class="learn-node-link" [routerLink]="['/app/learn/world', world.id]">World detail</a>
+          </article>
+        </section>
+
+        <section class="learn-map-column">
+          <h4>Chapters</h4>
+          <p class="muted-text" *ngIf="publishedChapters().length === 0">
+            Current world icin published chapter bulunamadi.
+          </p>
+          <article
+            *ngFor="let chapter of publishedChapters()"
+            class="learn-map-node"
+            [class.learn-map-node-current]="isCurrentNode('chapter', chapter.id)">
+            <div class="learn-map-node-topline">
+              <strong>{{ chapter.title ?? chapter.id }}</strong>
+              <span class="learn-current-badge" *ngIf="isCurrentNode('chapter', chapter.id)">current</span>
+            </div>
+            <span class="muted-text">{{ resolveNodeSummary(chapter) }}</span>
+          </article>
+        </section>
+
+        <section class="learn-map-column">
+          <h4>Units</h4>
+          <p class="muted-text" *ngIf="publishedUnits().length === 0">
+            Current chapter icin published unit bulunamadi.
+          </p>
+          <article
+            *ngFor="let unit of publishedUnits()"
+            class="learn-map-node"
+            [class.learn-map-node-current]="isCurrentNode('unit', unit.id)">
+            <div class="learn-map-node-topline">
+              <strong>{{ unit.title ?? unit.id }}</strong>
+              <span class="learn-current-badge" *ngIf="isCurrentNode('unit', unit.id)">current</span>
+            </div>
+            <span class="muted-text">{{ resolveNodeSummary(unit) }}</span>
+            <span class="muted-text">{{ resolvePrerequisiteHint(unit) }}</span>
+            <a class="learn-node-link" [routerLink]="['/app/learn/unit', unit.id]">Unit detail</a>
+          </article>
+        </section>
+      </div>
+    </section>
+  </article>
+</section>

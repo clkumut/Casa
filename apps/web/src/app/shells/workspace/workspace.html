@@ -1,0 +1,51 @@
+<div class="app-shell">
+  <aside class="left-rail page-panel">
+    <div>
+      <p class="page-eyebrow">App Shell</p>
+      <h1>Casa authenticated workspace</h1>
+      <p class="muted-text">
+        Sidebar, merkez icerik ve sag sabit bilgi alani contract'i burada tutulur.
+      </p>
+    </div>
+
+    <nav aria-label="Application navigation">
+      <a
+        *ngFor="let item of navigationItems"
+        class="shell-link"
+        [routerLink]="item.href"
+        routerLinkActive="is-active"
+      >
+        {{ item.label }}
+      </a>
+    </nav>
+  </aside>
+
+  <main class="center-stage">
+    <router-outlet></router-outlet>
+  </main>
+
+  <aside class="right-rail page-panel">
+    <div>
+      <p class="page-eyebrow">Right Rail</p>
+      <h2>Ozet metrikleri</h2>
+      <p class="muted-text">
+        XP, Streak, Gems ve Hearts basliklari shell contract'i olarak sabit kalir.
+      </p>
+    </div>
+
+    <section class="metrics-grid" aria-label="Placeholder metrics">
+      <article *ngFor="let metric of metrics()" class="metric-card">
+        <span>{{ metric.label }}</span>
+        <strong>{{ metric.value }}</strong>
+      </article>
+    </section>
+
+    <p class="muted-text" *ngIf="rightRailStatus() === 'loading'">
+      Right rail projection baglaniyor.
+    </p>
+
+    <p class="muted-text" *ngIf="rightRailStatus() === 'error'">
+      Right rail projection su an okunamiyor.
+    </p>
+  </aside>
+</div>

@@ -1,0 +1,71 @@
+<section class="auth-page-grid">
+  <article class="page-panel auth-page-main">
+    <span class="page-eyebrow">{{ content().eyebrow }}</span>
+    <h2 class="page-title">{{ content().title }}</h2>
+    <p class="page-description">{{ content().description }}</p>
+
+    <section class="auth-checkpoints" aria-label="Auth flow checkpoints">
+      <article class="auth-checkpoint" *ngFor="let checkpoint of content().checkpoints">
+        <span class="auth-checkpoint-marker"></span>
+        <span>{{ checkpoint }}</span>
+      </article>
+    </section>
+
+    <div class="auth-actions" *ngIf="content().primaryAction || content().secondaryAction">
+      <a
+        *ngIf="content().primaryAction as primaryAction"
+        class="auth-action auth-action-primary"
+        [routerLink]="primaryAction.href"
+      >
+        {{ primaryAction.label }}
+      </a>
+
+      <a
+        *ngIf="content().secondaryAction as secondaryAction"
+        class="auth-action auth-action-secondary"
+        [routerLink]="secondaryAction.href"
+      >
+        {{ secondaryAction.label }}
+      </a>
+    </div>
+
+    <section class="auth-page-slot">
+      <ng-content />
+    </section>
+  </article>
+
+  <aside class="page-panel auth-page-status" aria-label="Auth session status">
+    <span class="page-eyebrow">Runtime</span>
+    <h3 class="auth-status-title">Firebase session bridge</h3>
+
+    <dl class="auth-status-grid">
+      <div>
+        <dt>Environment</dt>
+        <dd>{{ runtimeConfig.environment }}</dd>
+      </div>
+      <div>
+        <dt>Mode</dt>
+        <dd>{{ runtimeMode() }}</dd>
+      </div>
+      <div>
+        <dt>Session</dt>
+        <dd>{{ sessionLabel() }}</dd>
+      </div>
+      <div>
+        <dt>Project</dt>
+        <dd>{{ runtimeConfig.firebase.projectId }}</dd>
+      </div>
+    </dl>
+
+    <div class="auth-session-note" *ngIf="sessionEmail() as email; else anonymousState">
+      <span class="auth-status-chip">{{ email }}</span>
+      <span class="auth-status-chip" *ngFor="let role of sessionRoles()">{{ role }}</span>
+    </div>
+
+    <ng-template #anonymousState>
+      <p class="muted-text auth-status-copy">
+        Hydration sonrasi kimliksiz durumda iseniz guest-only akislari gorursunuz.
+      </p>
+    </ng-template>
+  </aside>
+</section>
