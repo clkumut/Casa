@@ -6,8 +6,10 @@ import { onboardingCompleteGuard } from '../core/guards/onboarding-complete.guar
 import { onboardingProgressGuard } from '../core/guards/onboarding-progress.guard';
 import { opsRoleGuard } from '../core/guards/ops-role.guard';
 import { AuthLoginPageComponent } from '../features/auth/presentation/pages/auth-login-page.component';
+import { AuthOnboardingStepPageComponent } from '../features/auth/presentation/pages/auth-onboarding-step-page.component';
 import { AuthOnboardingWelcomePageComponent } from '../features/auth/presentation/pages/auth-onboarding-welcome-page.component';
 import { AuthRegisterPageComponent } from '../features/auth/presentation/pages/auth-register-page.component';
+import type { OnboardingStepId } from '../features/auth/models/onboarding-step-id.model';
 import { AppShellComponent } from './shells/app-shell.component';
 import { AuthOnboardingShellComponent } from './shells/auth-onboarding-shell.component';
 import { OpsShellComponent } from './shells/ops-shell.component';
@@ -27,6 +29,14 @@ const createPlaceholderRoute = (
     description,
   },
   ...overrides,
+});
+
+const createOnboardingStepRoute = (step: OnboardingStepId): Route => ({
+  path: step,
+  component: AuthOnboardingStepPageComponent,
+  data: {
+    step,
+  },
 });
 
 export const routes: Routes = [
@@ -72,6 +82,10 @@ export const routes: Routes = [
             path: 'welcome',
             component: AuthOnboardingWelcomePageComponent,
           },
+          createOnboardingStepRoute('goal'),
+          createOnboardingStepRoute('level'),
+          createOnboardingStepRoute('habit'),
+          createOnboardingStepRoute('path'),
         ],
         canActivate: [authGuard, onboardingProgressGuard],
       },

@@ -2,8 +2,115 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Secure baseline: deny all reads and writes until claims, ownership,
-    // and document boundaries are implemented from approved architecture.
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function hasOpsPublisherRole() {
+      return isSignedIn()
+        && (
+          request.auth.token.opsPublisher == true
+          || request.auth.token.role == 'opsPublisher'
+          || (request.auth.token.roles is list
+            && request.auth.token.roles.hasAny(['opsPublisher']))
+        );
+    }
+
+    function hasPlatformAdminRole() {
+      return isSignedIn()
+        && (
+          request.auth.token.platformAdmin == true
+          || request.auth.token.role == 'platformAdmin'
+          || (request.auth.token.roles is list
+            && request.auth.token.roles.hasAny(['platformAdmin']))
+        );
+    }
+
+    function isOpsCatalogWriter() {
+      return hasOpsPublisherRole() || hasPlatformAdminRole();
+    }
+
+    function hasAllowedCreateKeys() {
+      return request.resource.data.keys().hasAll(['uid', 'email'])
+        && request.resource.data.keys().hasOnly([
+          'uid',
+          'email',
+          'displayName',
+          'locale',
+          'learningDirection',
+          'goalCode',
+          'levelCode',
+          'habitCode',
+          'pathMode',
+          'visibilityLevel'
+        ]);
+    }
+
+    function hasAllowedUpdateKeys() {
+      return request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+        'displayName',
+        'locale',
+        'learningDirection',
+        'goalCode',
+        'levelCode',
+        'habitCode',
+        'pathMode',
+        'visibilityLevel'
+      ]);
+    }
+
+    function hasValidUserDraftFieldTypes() {
+      return request.resource.data.uid is string
+        && request.resource.data.email is string
+        && (!request.resource.data.keys().hasAny(['displayName'])
+          || request.resource.data.displayName is string)
+        && (!request.resource.data.keys().hasAny(['locale'])
+          || request.resource.data.locale is string)
+        && (!request.resource.data.keys().hasAny(['learningDirection'])
+          || request.resource.data.learningDirection is string)
+        && (!request.resource.data.keys().hasAny(['goalCode'])
+          || request.resource.data.goalCode is string)
+        && (!request.resource.data.keys().hasAny(['levelCode'])
+          || request.resource.data.levelCode is string)
+        && (!request.resource.data.keys().hasAny(['habitCode'])
+          || request.resource.data.habitCode is string)
+        && (!request.resource.data.keys().hasAny(['pathMode'])
+          || request.resource.data.pathMode is string)
+        && (!request.resource.data.keys().hasAny(['visibilityLevel'])
+          || request.resource.data.visibilityLevel is string);
+    }
+
+    function isAllowedUserDraftCreate(userId) {
+      return hasAllowedCreateKeys()
+        && hasValidUserDraftFieldTypes()
+        && request.resource.data.uid == userId
+        && request.resource.data.email == request.auth.token.email;
+    }
+
+    function isAllowedUserDraftUpdate() {
+      return hasAllowedUpdateKeys()
+        && hasValidUserDraftFieldTypes()
+        && resource.data.uid == request.auth.uid
+        && request.resource.data.uid == resource.data.uid
+        && request.resource.data.email == resource.data.email;
+    }
+
+    match /catalog_onboarding_options/{document=**} {
+      allow read: if true;
+      allow write: if isOpsCatalogWriter();
+    }
+
+    match /users/{userId} {
+      allow read: if isOwner(userId);
+      allow create: if isOwner(userId) && isAllowedUserDraftCreate(userId);
+      allow update: if isOwner(userId) && isAllowedUserDraftUpdate();
+      allow delete: if false;
+    }
+
     match /{document=**} {
       allow read, write: if false;
     }

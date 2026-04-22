@@ -34,7 +34,10 @@ Casa V1 kullanicisinin login, register ve onboarding akislarini resmi delivery s
 - Auth session state, runtime config ve route guard ailesi uygulama cekirdegine baglandi.
 - Firebase Auth ile login/register/sign-out aksiyonlari browser istemcisinde calisir durumda.
 - `users/{uid}` snapshot'indaki onboarding durumu auth session'a baglandi ve authenticated route kararları snapshot cozulmesini bekliyor.
-- Firebase SDK dinamik yukleme ile initial bundle budget tekrar uyumlu hale getirildi; siradaki slice onboarding draft ve catalog read modeli olacak.
+- Firebase SDK dinamik yukleme ile initial bundle budget tekrar uyumlu hale getirildi.
+- Onboarding feature read modeli, kullanici draft belgesi ile `catalog_onboarding_options` okumalarini facade uzerinden birlestiriyor ve step route'lari artik bu veriyle render oluyor.
+- Firestore rules, onboarding catalog read ve self user snapshot read'i aciyor; sinirli draft self-write alanlari gelecekteki save slice'i icin hazirlandi.
+- Siradaki slice onboarding save/finalize komutlarini ve progress guard icin dogru eksik-step yonlendirmesini acacak.
 
 ## Beklenen Ciktilar
 

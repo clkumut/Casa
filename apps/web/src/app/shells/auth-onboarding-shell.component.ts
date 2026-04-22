@@ -2,10 +2,13 @@ import { NgFor } from '@angular/common';
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 
+import { OnboardingReadFacade } from '../../features/auth/application/onboarding-read.facade';
+
 @Component({
   selector: 'casa-auth-onboarding-shell',
   standalone: true,
   imports: [NgFor, RouterLink, RouterLinkActive, RouterOutlet],
+  providers: [OnboardingReadFacade],
   template: `
     <div class="auth-shell">
       <aside class="auth-sidebar page-panel">
@@ -79,5 +82,9 @@ export class AuthOnboardingShellComponent {
     { href: '/auth/login', label: 'Giris' },
     { href: '/auth/register', label: 'Kayit' },
     { href: '/auth/onboarding/welcome', label: 'Welcome' },
+    { href: '/auth/onboarding/goal', label: 'Goal' },
+    { href: '/auth/onboarding/level', label: 'Level' },
+    { href: '/auth/onboarding/habit', label: 'Habit' },
+    { href: '/auth/onboarding/path', label: 'Path' },
   ];
 }

@@ -1,22 +1,33 @@
 import { NgFor, NgIf } from '@angular/common';
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
 import { FirebaseAuthSessionService } from '../../../../core/auth/firebase-auth-session.service';
 import { AuthSessionStore } from '../../../../core/state/auth-session.store';
+import { OnboardingReadFacade } from '../../application/onboarding-read.facade';
 import type { AuthPageContentModel } from '../../models/auth-page-content.model';
+import { resolveOnboardingDraftSelection } from '../../models/onboarding-draft.model';
+import { ONBOARDING_STEP_LABELS, ONBOARDING_STEP_SEQUENCE } from '../../models/onboarding-step-id.model';
 import { AuthFlowPageComponent } from '../components/auth-flow-page.component';
 
 const ONBOARDING_WELCOME_PAGE_CONTENT: AuthPageContentModel = {
   eyebrow: 'Onboarding',
   title: 'Hos geldin adimi hydrate edilmis session ile aciliyor',
   description:
-    'Onboarding route zinciri artik auth guard ve progress guard ardindan gercek feature komponentini render ediyor.',
+    'Onboarding route zinciri artik auth guard ve progress guard ardindan feature-local read model ile ilerliyor.',
   checkpoints: [
     'Auth olmayan kullanici login sayfasina geri yonlendirilir.',
     'Onboarding tamamlanmis kullanici AppShell alanina tasinir.',
-    "Eksik profil snapshot baglantisi sonraki application slice'ta eklenecek.",
+    'Draft profil ve onboarding catalog okumasi ayni facade uzerinde toplanir.',
   ],
+  primaryAction: {
+    href: '/auth/onboarding/goal',
+    label: 'Goal adimina gec',
+  },
+  secondaryAction: {
+    href: '/auth/login',
+    label: 'Login sayfasina don',
+  },
 };
 
 @Component({
@@ -33,10 +44,22 @@ const ONBOARDING_WELCOME_PAGE_CONTENT: AuthPageContentModel = {
         </article>
 
         <article class="welcome-summary-card">
-          <span class="welcome-summary-label">Onboarding</span>
-          <strong>{{ session().onboardingStatus }}</strong>
-          <span class="muted-text">Tamamlama baglantisi sonraki projection slice'inda acilacak.</span>
+          <span class="welcome-summary-label">Read model</span>
+          <strong>{{ onboardingReadStatus() }}</strong>
+          <span class="muted-text">Draft ve catalog ayni feature facade uzerinden izleniyor.</span>
         </article>
+      </section>
+
+      <section class="welcome-draft-grid">
+        <a
+          *ngFor="let item of draftSummary()"
+          class="welcome-draft-card"
+          [routerLink]="item.href"
+        >
+          <span class="welcome-summary-label">{{ item.label }}</span>
+          <strong>{{ item.value }}</strong>
+          <span class="muted-text">{{ item.caption }}</span>
+        </a>
       </section>
 
       <section class="welcome-checklist">
@@ -46,13 +69,17 @@ const ONBOARDING_WELCOME_PAGE_CONTENT: AuthPageContentModel = {
         </ul>
       </section>
 
-      <p class="welcome-note" *ngIf="session().onboardingStatus === 'required'">
-        AppShell girisi henuz bilincli olarak kapali tutuluyor; once snapshot tamamlanma durumu baglanacak.
+      <p class="welcome-note" *ngIf="onboardingReadStatus() === 'loading'">
+        Kullanici draft belgesi ve catalog_onboarding_options verileri okunuyor.
+      </p>
+
+      <p class="welcome-note" *ngIf="onboardingReadStatus() === 'error'">
+        Onboarding read modeli su an cozulmedi; Firestore baglantisini dogrulayin.
       </p>
 
       <div class="welcome-actions">
         <button type="button" (click)="signOut()">Oturumu kapat</button>
-        <a routerLink="/auth/login">Login sayfasina don</a>
+        <a routerLink="/auth/onboarding/goal">Goal adimina gec</a>
       </div>
     </casa-auth-flow-page>
   `,
@@ -82,6 +109,23 @@ const ONBOARDING_WELCOME_PAGE_CONTENT: AuthPageContentModel = {
 
       .welcome-checklist h3 {
         margin: 0 0 0.75rem;
+      }
+
+      .welcome-draft-grid {
+        display: grid;
+        gap: 1rem;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .welcome-draft-card {
+        background: var(--casa-surface-muted);
+        border: 1px solid var(--casa-border);
+        border-radius: 18px;
+        color: inherit;
+        display: grid;
+        gap: 0.35rem;
+        padding: 1rem 1.1rem;
+        text-decoration: none;
       }
 
       .welcome-checklist ul {
@@ -116,7 +160,8 @@ const ONBOARDING_WELCOME_PAGE_CONTENT: AuthPageContentModel = {
       }
 
       @media (max-width: 720px) {
-        .welcome-summary {
+        .welcome-summary,
+        .welcome-draft-grid {
           grid-template-columns: 1fr;
         }
       }
@@ -127,14 +172,30 @@ const ONBOARDING_WELCOME_PAGE_CONTENT: AuthPageContentModel = {
 export class AuthOnboardingWelcomePageComponent {
   private readonly firebaseAuthSessionService = inject(FirebaseAuthSessionService);
   private readonly authSessionStore = inject(AuthSessionStore);
+  private readonly onboardingReadFacade = inject(OnboardingReadFacade);
 
   protected readonly content = ONBOARDING_WELCOME_PAGE_CONTENT;
   protected readonly session = this.authSessionStore.session;
+  protected readonly onboardingReadStatus = this.onboardingReadFacade.status;
   protected readonly checklist = [
-    'Kullanici onboarding snapshot kontrati ve projection read modeli',
+    'Onboarding save komutlari ve self-write siniri',
     'Onboarding ilerleme yazimlari icin trusted write siniri',
-    'Onboarding complete durumunun guard ile senkron kapanisi',
+    'Progress guard icin dogru step yonlendirmesi',
   ];
+  protected readonly draftSummary = computed(() => {
+    const onboardingDraft = this.onboardingReadFacade.draft();
+
+    return ONBOARDING_STEP_SEQUENCE.map((step) => {
+      const code = resolveOnboardingDraftSelection(onboardingDraft, step);
+
+      return {
+        href: `/auth/onboarding/${step}`,
+        label: ONBOARDING_STEP_LABELS[step],
+        value: code ?? 'Henuz secim yok',
+        caption: code ? `Kayitli kod: ${code}` : 'Draft kullanici belgesinden henuz deger gelmedi.',
+      };
+    });
+  });
 
   protected async signOut(): Promise<void> {
     await this.firebaseAuthSessionService.signOut();

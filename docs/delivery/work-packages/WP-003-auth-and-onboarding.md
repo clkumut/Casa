@@ -67,4 +67,7 @@ V1 kullanicisinin sisteme giris, kayit, ilk profil olusturma ve rol-temelli onbo
 - Login, register ve onboarding welcome route'lari feature-owned sayfalara tasindi; Firebase Auth tabanli executable aksiyonlar eklendi.
 - `users/{uid}` snapshot'indaki `onboardingCompletedAt` alani auth session'a baglandi; guard kararları artik user snapshot verisi cozulmeden alinmiyor.
 - Firebase istemcisi dinamik yuklemeye alinarak web ilk bundle boyutu yeniden budget altina indirildi.
-- Siradaki teknik slice, onboarding step draft verisini ve `catalog_onboarding_options` okumalarini feature akisina baglamaktir.
+- Onboarding feature'i icinde repository + facade tabanli read model kuruldu; kullanici draft verisi ve `catalog_onboarding_options` ayni feature akisina baglandi.
+- `/auth/onboarding/goal`, `/auth/onboarding/level`, `/auth/onboarding/habit` ve `/auth/onboarding/path` route'lari acildi; sayfalar mevcut draft secimini ve catalog seceneklerini gosteriyor.
+- Firestore rules onboarding catalog read, self user snapshot read ve sinirli onboarding draft self-write cizgisine cekildi; onboarding read modeli artik deny-all baseline tarafindan bloke edilmiyor.
+- Siradaki teknik slice, onboarding step save/finalize komutlari ile progress guard'in eksik step'i dogru route'a yonlendirmesidir.
