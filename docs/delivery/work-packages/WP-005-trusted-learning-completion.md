@@ -11,6 +11,8 @@ Ders tamamlama, ilerleme, XP ve heart ekonomisini trusted write modeline bagli s
 ## Bagli Emir
 
 - [../../orders/ORD-004-trusted-learning-completion.md](../../orders/ORD-004-trusted-learning-completion.md)
+- [../../evidence/gates/EVD-G4-001-wp-005-close.md](../../evidence/gates/EVD-G4-001-wp-005-close.md)
+- [../../approvals/gates/APR-G4-001-wp-005-close.md](../../approvals/gates/APR-G4-001-wp-005-close.md)
 
 ## Dayandigi Kararlar
 
@@ -65,4 +67,6 @@ Ders tamamlama, ilerleme, XP ve heart ekonomisini trusted write modeline bagli s
 - Resmi ORD acildi; WP-005 execution sirasinda emulator smoke ve sign-off kaniti toplanacak.
 - Teknik temel dilimi olarak `completeLesson` callable export edildi; idempotent request anahtari ile `learning_completion_events`, `progressionSnapshots/default` ve `rightRailSnapshots/default` guncelleme zinciri acildi.
 - `SMK-WP-005-001` smoke kaydi ile `startLessonChallenge` ve `completeLesson` callable'lari emulator ortaminda dogrulandi; lesson completion sonrasi progression ilerlemesi ve XP/hearts projection guncellemesi kanita baglandi.
-- Sonraki delivery adimi, negatif abuse/rules smoke kanitini ve Security + QA sign-off'unu tamamlamaktir.
+- `SMK-WP-005-002` smoke kaydi ile authenticated client'in progression, right rail, completion event ve challenge attempt write denemelerinin `permission-denied` ile reddedildigi kanita baglandi.
+- G4 close kaydi acildi; mevcut resmi blocker QA sign-off ve PM kapanis onayidir.
+- Sonraki delivery adimi, QA sign-off'u tamamlayip PM ile WP-005 kapanis kararini vermektir.

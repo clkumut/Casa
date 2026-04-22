@@ -25,6 +25,7 @@ Bu indeks, gate ve release kanitlarinin hangi kimlikle tutulacagini ve hangi ala
 | EVD-G1-001 | Scope Freeze Evidence | Draft - Evidence Collected | WP-001 / ORD-001 | [EVD-G1-001](./gates/EVD-G1-001-scope-freeze.md) |
 | EVD-G2-001 | Architecture Freeze Evidence | Draft - Evidence Collected | WP-001, WP-002 / ORD-001, ORD-002 | [EVD-G2-001](./gates/EVD-G2-001-architecture-freeze.md) |
 | EVD-G3-001 | Build Ready Evidence | Pass | WP-002 / ORD-002 | [EVD-G3-001](./gates/EVD-G3-001-build-ready.md) |
+| EVD-G4-001 | WP-005 Close Evidence | Draft - Evidence Collected | WP-005 / ORD-004 | [EVD-G4-001](./gates/EVD-G4-001-wp-005-close.md) |
 | EVD-G5-001 | Release Ready Evidence | Not Started - Planned Evidence | WP-011 / ORD TBD | [EVD-G5-001](./gates/EVD-G5-001-release-ready.md) |
 
 ## Work Package Kayitlari

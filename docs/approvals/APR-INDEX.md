@@ -24,6 +24,7 @@ APR kayitlari, gate ve release sign-off'larini resmi hale getirir. Bu indeks, be
 | APR-G1-001 | Scope Freeze | Product Owner, PM, TL | Pending | [APR-G1-001](./gates/APR-G1-001-scope-freeze.md) |
 | APR-G2-001 | Architecture Freeze | SA, TL, Security, DevOps | Pending | [APR-G2-001](./gates/APR-G2-001-architecture-freeze.md) |
 | APR-G3-001 | Build Ready | TL, DevOps, QA | Approved | [APR-G3-001](./gates/APR-G3-001-build-ready.md) |
+| APR-G4-001 | WP-005 Close | TL, QA, PM | Pending | [APR-G4-001](./gates/APR-G4-001-wp-005-close.md) |
 | APR-G5-001 | Release Ready | PM, QA, Security, DevOps | Not Started | [APR-G5-001](./gates/APR-G5-001-release-ready.md) |
 
 ## Gate Approval Dizini

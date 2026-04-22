@@ -34,6 +34,7 @@ Casa V1 lesson completion, progression ve right rail ekonomi guncelleme zincirin
 - Trusted write zinciri `learning_completion_events`, `progressionSnapshots/default` ve `rightRailSnapshots/default` belgelerine baglandi.
 - Web tarafinda lesson execution sayfasi server-backed challenge attempt olmadan completion acmayacak sekilde sertlestirildi.
 - `SMK-WP-005-001` smoke kaydi ile challenge precondition, actor-scoped idempotency, progression ilerlemesi ve right rail XP/hearts guncellemesi emulator ortaminda dogrulandi.
+- `SMK-WP-005-002` smoke kaydi ile authenticated client'in progression, right rail, completion event ve challenge attempt belgelerine dogrudan yazamadigi emulator ortaminda dogrulandi.
 
 ## Beklenen Ciktilar
 
@@ -45,6 +46,7 @@ Casa V1 lesson completion, progression ve right rail ekonomi guncelleme zincirin
 
 - [../evidence/work-packages/EVD-WP-005-001-trusted-learning-completion.md](../evidence/work-packages/EVD-WP-005-001-trusted-learning-completion.md)
 - [../../operations/smoke-tests/dev/SMK-WP-005-001-trusted-learning-completion-emulator.md](../../operations/smoke-tests/dev/SMK-WP-005-001-trusted-learning-completion-emulator.md)
+- [../evidence/gates/EVD-G4-001-wp-005-close.md](../evidence/gates/EVD-G4-001-wp-005-close.md)
 
 ## Onay Zinciri
 
@@ -55,3 +57,5 @@ Casa V1 lesson completion, progression ve right rail ekonomi guncelleme zincirin
 - Bu emir execution-plan V1 adim 5'i resmi delivery takibine alir.
 - Practice ve recovery loop dilimine gecis icin once WP-005 smoke ve guvenlik kanitinin toplanmasi gerekir.
 - Emulator smoke, guncel callable export'lari icin `apps/functions` build onkosulunu da fiilen dogruladi.
+- Rules smoke, trusted mutation authority'nin istemcide degil callable katmaninda kaldigini ek kanit olarak topladi.
+- G4 close kaydi acildi; mevcut blocker yalniz QA ve PM resmi approval zinciridir.
