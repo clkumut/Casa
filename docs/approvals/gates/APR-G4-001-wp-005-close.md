@@ -21,7 +21,7 @@ WP-005 icin trusted learning completion evidence paketi toplandi. Tech Lead ve S
 | Rol | Karar | Not |
 | --- | --- | --- |
 | Tech Lead | Approved | Trusted completion ve rules smoke kaniti teknik blocker gostermiyor |
-| QA | Pending | Work package close icin smoke sonucu ve kalite kapanisi kaydi incelenecek |
+| QA | Pending | Pozitif ve negatif smoke kayitlari ile lesson/unit route sanity kontrolu uzerinden kalite karari verilecek |
 | PM | Pending | QA sonucu ile birlikte resmi close karari verilecek |
 
 ## Ek Review Notu
@@ -34,6 +34,14 @@ WP-005 icin trusted learning completion evidence paketi toplandi. Tech Lead ve S
 
 - QA kalite onayi olmadan G4 WP Close kapatilmaz.
 - PM karari, QA sonucu ve mevcut kanit paketine bagli olarak verilecektir.
+
+## QA Inceleme Kapsami
+
+| Alan | Beklenen Cikis | Referans |
+| --- | --- | --- |
+| Trusted completion smoke | Challenge start ve lesson completion akisi beklenen sonuc setiyle gecmeli | [../../evidence/gates/EVD-G4-001-wp-005-close.md](../../evidence/gates/EVD-G4-001-wp-005-close.md) |
+| Rules abuse smoke | Direct client write denemeleri `permission-denied` ile reddedilmeli | [../../evidence/gates/EVD-G4-001-wp-005-close.md](../../evidence/gates/EVD-G4-001-wp-005-close.md) |
+| Route sanity | Lesson ve unit yuzeylerinde blocker regresyon bulunmamali | [../../delivery/work-packages/WP-005-trusted-learning-completion.md](../../delivery/work-packages/WP-005-trusted-learning-completion.md) |
 
 ## Sonraki Adim
 
