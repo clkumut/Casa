@@ -41,7 +41,11 @@ Casa V1 kullanicisinin login, register ve onboarding akislarini resmi delivery s
 - Progress guard eksik onboarding step'ini dogrudan hedefliyor; tamamlanmamis ama tum secimleri dolu kullanici welcome summary uzerinden finalize ediliyor.
 - AppShell right rail projection baglantisi acildi; `users/{uid}/rightRailSnapshots/default` sahibi tarafindan okunuyor ve shell bootstrap'i resolver ile ilk projection yukunu bekliyor.
 - `SMK-WP-003-001` smoke testi `finalizeOnboarding` callable'inin `completed` ve `already-complete` durumlarini emulator ortaminda dogruladi.
-- Siradaki slice onboarding sonrasi `/app/learn` merkez-stage read modelinin acilmasidir.
+- `/app/learn` placeholder'i kaldirildi; progression snapshot projection'i repository + facade akisi ile gercek learn bootstrap sayfasina baglandi.
+- Firestore rules `users/{uid}/progressionSnapshots/*` owner-read izniyle bu bootstrap okumasini destekliyor.
+- Learn bootstrap, current `catalog_learning_worlds`, `catalog_learning_chapters` ve `catalog_learning_units` belgelerini progression snapshot ile ayni read modelde cozmeye basladi.
+- Firestore rules ilgili learning catalog koleksiyonlari icin public read izniyle bu merkez-stage okumasini destekliyor.
+- Siradaki slice, published world/chapter/unit liste ve prerequisite baglarini learn bootstrap yuzeyine ekleyerek learning map'in ilk liste gorunumunu acmaktir.
 
 ## Beklenen Ciktilar
 

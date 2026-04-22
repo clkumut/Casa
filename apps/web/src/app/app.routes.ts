@@ -10,6 +10,7 @@ import { AuthLoginPageComponent } from '../features/auth/presentation/pages/auth
 import { AuthOnboardingStepPageComponent } from '../features/auth/presentation/pages/auth-onboarding-step-page.component';
 import { AuthOnboardingWelcomePageComponent } from '../features/auth/presentation/pages/auth-onboarding-welcome-page.component';
 import { AuthRegisterPageComponent } from '../features/auth/presentation/pages/auth-register-page.component';
+import { LearnHomePageComponent } from '../features/learn/presentation/pages/learn-home-page.component';
 import type { OnboardingStepId } from '../features/auth/models/onboarding-step-id.model';
 import { AppShellComponent } from './shells/app-shell.component';
 import { AuthOnboardingShellComponent } from './shells/auth-onboarding-shell.component';
@@ -105,11 +106,10 @@ export const routes: Routes = [
         pathMatch: 'full',
         redirectTo: 'learn',
       },
-      createPlaceholderRoute(
-        'learn',
-        'Ogrenme Haritasi',
-        'Dunya, unit ve ilerleme projection alanlarini barindiracak app route placeholder sayfa.',
-      ),
+      {
+        path: 'learn',
+        component: LearnHomePageComponent,
+      },
       createPlaceholderRoute(
         'elifba',
         'Elifba',

@@ -99,6 +99,21 @@ service cloud.firestore {
         && request.resource.data.email == resource.data.email;
     }
 
+    match /catalog_learning_worlds/{document=**} {
+      allow read: if true;
+      allow write: if isOpsCatalogWriter();
+    }
+
+    match /catalog_learning_chapters/{document=**} {
+      allow read: if true;
+      allow write: if isOpsCatalogWriter();
+    }
+
+    match /catalog_learning_units/{document=**} {
+      allow read: if true;
+      allow write: if isOpsCatalogWriter();
+    }
+
     match /catalog_onboarding_options/{document=**} {
       allow read: if true;
       allow write: if isOpsCatalogWriter();
@@ -111,6 +126,11 @@ service cloud.firestore {
       allow delete: if false;
 
       match /rightRailSnapshots/{snapshotId} {
+        allow read: if isOwner(userId);
+        allow write: if false;
+      }
+
+      match /progressionSnapshots/{snapshotId} {
         allow read: if isOwner(userId);
         allow write: if false;
       }

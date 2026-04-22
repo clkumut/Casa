@@ -74,4 +74,8 @@ V1 kullanicisinin sisteme giris, kayit, ilk profil olusturma ve rol-temelli onbo
 - Progress guard, `users/{uid}` snapshot'ina gore eksik onboarding step'ine dogrudan yonleniyor; tum step secimleri dolu ama tamamlanmamis durumda welcome summary canonical route olarak korunuyor.
 - AppShell right rail placeholder'i `users/{uid}/rightRailSnapshots/default` projection'ina baglandi; app readiness resolver ilk projection yukunu bekliyor ve shell mock veri gostermiyor.
 - `SMK-WP-003-001` smoke kaydi ile trusted `finalizeOnboarding` callable'i emulator uzerinde ilk ve ikinci cagrilarla dogrulandi.
-- Siradaki teknik slice, `/app/learn` icin ilk merkez-stage projection baglantisi ve onboarding sonrasi learn bootstrap read modelidir.
+- `/app/learn` placeholder route'u progression snapshot odakli gercek learn bootstrap sayfasina tasindi; feature-local repository + facade `users/{uid}/progressionSnapshots` projection'ini okuyarak current world/chapter/unit/lesson ve ozet metriklerini gosteriyor.
+- Firestore rules, `users/{uid}/progressionSnapshots/*` owner-read cizgisiyle learn bootstrap okumasi icin acildi.
+- Learn bootstrap read modeli current `catalog_learning_worlds`, `catalog_learning_chapters` ve `catalog_learning_units` belgelerini progression snapshot ile birlestiriyor; `/app/learn` artik yalniz id degil catalog metadata da gosteriyor.
+- Firestore rules, `catalog_learning_worlds`, `catalog_learning_chapters` ve `catalog_learning_units` icin public read cizgisini acarak learning map bootstrap kontratini bloke etmiyor.
+- Siradaki teknik slice, published world/chapter/unit liste ve prerequisite baglarini learn merkez-stage yuzeyine ekleyerek ilk learning map liste gorunumunu acmaktir.
