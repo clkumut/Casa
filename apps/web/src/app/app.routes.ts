@@ -11,6 +11,8 @@ import { AuthOnboardingStepPageComponent } from '../features/auth/presentation/p
 import { AuthOnboardingWelcomePageComponent } from '../features/auth/presentation/pages/auth-onboarding-welcome-page.component';
 import { AuthRegisterPageComponent } from '../features/auth/presentation/pages/auth-register-page.component';
 import { LearnHomePageComponent } from '../features/learn/presentation/pages/learn-home-page.component';
+import { LearnUnitPageComponent } from '../features/learn/presentation/pages/learn-unit-page.component';
+import { LearnWorldPageComponent } from '../features/learn/presentation/pages/learn-world-page.component';
 import type { OnboardingStepId } from '../features/auth/models/onboarding-step-id.model';
 import { AppShellComponent } from './shells/app-shell.component';
 import { AuthOnboardingShellComponent } from './shells/auth-onboarding-shell.component';
@@ -109,6 +111,14 @@ export const routes: Routes = [
       {
         path: 'learn',
         component: LearnHomePageComponent,
+      },
+      {
+        path: 'learn/world/:worldId',
+        component: LearnWorldPageComponent,
+      },
+      {
+        path: 'learn/unit/:unitId',
+        component: LearnUnitPageComponent,
       },
       createPlaceholderRoute(
         'elifba',

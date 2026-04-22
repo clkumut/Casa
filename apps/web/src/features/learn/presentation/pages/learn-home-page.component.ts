@@ -1,5 +1,6 @@
 import { NgFor, NgIf } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
+import { RouterLink } from '@angular/router';
 
 import { LearnBootstrapFacade } from '../../application/learn-bootstrap.facade';
 import type { LearningCatalogNodeModel } from '../../models/learning-catalog.model';
@@ -7,7 +8,7 @@ import type { LearningCatalogNodeModel } from '../../models/learning-catalog.mod
 @Component({
   selector: 'casa-learn-home-page',
   standalone: true,
-  imports: [NgFor, NgIf],
+  imports: [NgFor, NgIf, RouterLink],
   providers: [LearnBootstrapFacade],
   template: `
     <section class="learn-page-grid">
@@ -37,7 +38,7 @@ import type { LearningCatalogNodeModel } from '../../models/learning-catalog.mod
         </p>
 
         <p class="muted-text" *ngIf="status() === 'ready'">
-          Current node metadata, published curriculum listesi ve prerequisite baglari ayni read modelde cozuluyor.
+          Current node metadata, published curriculum listesi ve detail route baglari ayni read modelde cozuluyor.
         </p>
 
         <p class="learn-error" *ngIf="status() === 'error'">
@@ -61,7 +62,7 @@ import type { LearningCatalogNodeModel } from '../../models/learning-catalog.mod
           <article class="learn-card learn-card-wide">
             <span class="learn-card-label">Bootstrap notu</span>
             <p class="muted-text">
-              Mevcut snapshot World {{ progressionSnapshot.currentWorldId ?? 'yok' }}, Chapter {{ progressionSnapshot.currentChapterId ?? 'yok' }}, Unit {{ progressionSnapshot.currentUnitId ?? 'yok' }} ve Lesson {{ progressionSnapshot.currentLessonId ?? 'yok' }} alanlarini aciyor. Published world/chapter/unit liste gorunumu ve unit prerequisite baglari ayni route'a eklendi.
+              Mevcut snapshot World {{ progressionSnapshot.currentWorldId ?? 'yok' }}, Chapter {{ progressionSnapshot.currentChapterId ?? 'yok' }}, Unit {{ progressionSnapshot.currentUnitId ?? 'yok' }} ve Lesson {{ progressionSnapshot.currentLessonId ?? 'yok' }} alanlarini aciyor. Published world/chapter/unit liste gorunumu, detail route baglari ve unit prerequisite baglari ayni route'a eklendi.
             </p>
           </article>
         </section>
@@ -73,7 +74,7 @@ import type { LearningCatalogNodeModel } from '../../models/learning-catalog.mod
               <h3 class="learn-map-title">Published curriculum listesi</h3>
             </div>
             <p class="muted-text">
-              Liste yalniz published catalog belgelerini gosterir ve current progression node'larini isaretler.
+              Liste yalniz published catalog belgelerini gosterir, current progression node'larini isaretler ve detail route'lara baglanir.
             </p>
           </header>
 
@@ -90,6 +91,7 @@ import type { LearningCatalogNodeModel } from '../../models/learning-catalog.mod
                   <span class="learn-current-badge" *ngIf="isCurrentNode('world', world.id)">current</span>
                 </div>
                 <span class="muted-text">{{ resolveNodeSummary(world) }}</span>
+                <a class="learn-node-link" [routerLink]="['/app/learn/world', world.id]">World detail</a>
               </article>
             </section>
 
@@ -125,6 +127,7 @@ import type { LearningCatalogNodeModel } from '../../models/learning-catalog.mod
                 </div>
                 <span class="muted-text">{{ resolveNodeSummary(unit) }}</span>
                 <span class="muted-text">{{ resolvePrerequisiteHint(unit) }}</span>
+                <a class="learn-node-link" [routerLink]="['/app/learn/unit', unit.id]">Unit detail</a>
               </article>
             </section>
           </div>
@@ -221,6 +224,13 @@ import type { LearningCatalogNodeModel } from '../../models/learning-catalog.mod
         text-transform: uppercase;
       }
 
+      .learn-node-link {
+        color: var(--casa-ink);
+        font-weight: 700;
+        text-decoration: none;
+        width: fit-content;
+      }
+
       .learn-card-wide {
         grid-column: 1 / -1;
       }
@@ -263,8 +273,16 @@ export class LearnHomePageComponent {
   protected readonly catalog = this.learnBootstrapFacade.catalog;
   protected readonly catalogMap = this.learnBootstrapFacade.catalogMap;
   protected readonly progression = this.learnBootstrapFacade.progression;
-  protected readonly publishedChapters = computed(() => this.catalogMap().chapters);
-  protected readonly publishedUnits = computed(() => this.catalogMap().units);
+  protected readonly publishedChapters = computed(() => {
+    const currentWorldId = this.progression()?.currentWorldId;
+
+    return this.catalogMap().chapters.filter((chapter) => chapter.parentId === currentWorldId);
+  });
+  protected readonly publishedUnits = computed(() => {
+    const currentChapterId = this.progression()?.currentChapterId;
+
+    return this.catalogMap().units.filter((unit) => unit.parentId === currentChapterId);
+  });
   protected readonly publishedWorlds = computed(() => this.catalogMap().worlds);
   protected readonly progressionCards = computed(() => {
     const catalog = this.catalog();
@@ -312,7 +330,7 @@ export class LearnHomePageComponent {
   protected readonly status = this.learnBootstrapFacade.status;
   protected readonly unitPrerequisiteLookup = computed(() => {
     return new Map(
-      this.publishedUnits().map((unit) => [unit.id, unit.title ?? unit.id] as const),
+      this.catalogMap().units.map((unit) => [unit.id, unit.title ?? unit.id] as const),
     );
   });
 

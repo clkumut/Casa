@@ -47,7 +47,9 @@ Casa V1 kullanicisinin login, register ve onboarding akislarini resmi delivery s
 - Firestore rules ilgili learning catalog koleksiyonlari icin public read izniyle bu merkez-stage okumasini destekliyor.
 - `/app/learn` published world/chapter/unit listelerini render ediyor ve current progression bagina gore ilgili chapter ile unit kesitini merkez-stage'de gosteriyor.
 - Unit prerequisite refs, learn liste gorunumunde ilk onkosul ipucu olarak acildi.
-- Siradaki slice, `/app/learn/world/:worldId` ve `/app/learn/unit/:unitId` route ailelerini acarak liste gorunumunden detay akisina gecmektir.
+- `/app/learn/world/:worldId` route ailesi acildi; world detail sayfasi published chapter ve unit kesitleriyle detay akisina gecti.
+- `/app/learn/unit/:unitId` route ailesi acildi; unit detail sayfasi parent baglari ve prerequisite iliskileriyle detail bagini dogruluyor.
+- Siradaki slice, `catalog_learning_lessons` bagini `/app/learn/unit/:unitId` detail yuzeyine tasiyarak lesson catalog kesitini ve start boundary'sini acmaktir.
 
 ## Beklenen Ciktilar
 

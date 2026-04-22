@@ -10,6 +10,9 @@ agents: ['Solution Architect', 'Project Manager', 'Tech Lead', 'Security Enginee
 argument-hint: Mimari karar, teknoloji secimi veya teknik risk istegini yazin.
 user-invocable: true
 handoffs:
+  - label: Plananı Devam Ettir
+    agent: CTO
+    prompt: Gereksiz detaylara girmeden, gereksiz dallanmalara girmeden, uzan Agent işbirligi ile sıradakaki adımdan devam et.
   - label: Mimarigi Detaylandir
     agent: Solution Architect
     prompt: CTO karari dogrultusunda mimariyi detaylandir ve uygulanabilir tasarima donustur.

@@ -80,4 +80,6 @@ V1 kullanicisinin sisteme giris, kayit, ilk profil olusturma ve rol-temelli onbo
 - Firestore rules, `catalog_learning_worlds`, `catalog_learning_chapters` ve `catalog_learning_units` icin public read cizgisini acarak learning map bootstrap kontratini bloke etmiyor.
 - `/app/learn` published world/chapter/unit listelerini ayni read modelde cozmeye basladi; current world ve chapter bagina gore filtrelenmis liste gorunumu merkez-stage'e tasindi.
 - Unit kartlari, catalog icindeki prerequisite refs alanlarini okuyarak ilk onkosul baglarini learn yuzeyinde gostermeye basladi.
-- Siradaki teknik slice, `/app/learn/world/:worldId` ve `/app/learn/unit/:unitId` route ailelerini acarak liste gorunumunden detay akisina gecmektir.
+- `/app/learn/world/:worldId` route ailesi acildi; world detail sayfasi ilgili chapter ve unit kesitlerini published catalog'tan okuyarak liste gorunumunden detay akisina geciyor.
+- `/app/learn/unit/:unitId` route ailesi acildi; unit detail sayfasi parent world/chapter ve prerequisite baglarini current progression ile ayni yuzeyde gosteriyor.
+- Siradaki teknik slice, `catalog_learning_lessons` bagini `/app/learn/unit/:unitId` detail yuzeyine tasiyarak lesson catalog kesitini ve start boundary'sini acmaktir.
